@@ -1,0 +1,3739 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEXUS // Plataforma de Programación</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cyan: #00f5ff;
+      --magenta: #ff006e;
+      --green: #00ff41;
+      --violet: #bd00ff;
+      --amber: #ffaa00;
+      --bg: #04040e;
+      --panel: #080818;
+      --text: #c8d0ff;
+      --text-dim: #6070aa;
+      --border: rgba(0, 245, 255, 0.2);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: 'Rajdhani', sans-serif; min-height: 100vh; }
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-thumb { background: var(--cyan); }
+
+    /* MATRIX BACKGROUND */
+    .matrix-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--bg);
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .matrix-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+    }
+
+    .matrix-pattern {
+      position: relative;
+      width: 1000px;
+      height: 100%;
+    }
+
+    .matrix-column {
+      position: absolute;
+      top: -100%;
+      width: 20px;
+      font-size: 14px;
+      line-height: 16px;
+      font-weight: bold;
+      animation: matrix-fall linear infinite;
+      opacity: 0.25;
+    }
+
+    .matrix-column::before {
+      content: "ニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲンABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+      background: linear-gradient(to bottom, var(--cyan) 0%, var(--green) 20%, rgba(0,255,65,0.3) 50%, transparent 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      writing-mode: vertical-lr;
+      letter-spacing: 2px;
+    }
+
+    .matrix-column:nth-child(1) { left: 0px; animation-delay: -2.5s; animation-duration: 3s; }
+    .matrix-column:nth-child(2) { left: 25px; animation-delay: -3.2s; animation-duration: 4s; }
+    .matrix-column:nth-child(3) { left: 50px; animation-delay: -1.8s; animation-duration: 2.5s; }
+    .matrix-column:nth-child(4) { left: 75px; animation-delay: -2.9s; animation-duration: 3.5s; }
+    .matrix-column:nth-child(5) { left: 100px; animation-delay: -1.5s; animation-duration: 3s; }
+    .matrix-column:nth-child(6) { left: 125px; animation-delay: -3.8s; animation-duration: 4.5s; }
+    .matrix-column:nth-child(7) { left: 150px; animation-delay: -2.1s; animation-duration: 2.8s; }
+    .matrix-column:nth-child(8) { left: 175px; animation-delay: -2.7s; animation-duration: 3.2s; }
+    .matrix-column:nth-child(9) { left: 200px; animation-delay: -3.4s; animation-duration: 3.8s; }
+    .matrix-column:nth-child(10) { left: 225px; animation-delay: -1.9s; animation-duration: 2.7s; }
+
+    @keyframes matrix-fall {
+      0% { transform: translateY(-10%); opacity: 0.25; }
+      100% { transform: translateY(200%); opacity: 0; }
+    }
+
+    /* MEJORADA: Animación para indicador de pensamiento */
+    @keyframes blink {
+      0%, 20% { opacity: 0.2; }
+      50% { opacity: 1; }
+      80%, 100% { opacity: 0.2; }
+    }
+
+
+    /* LOADER */
+    .loader-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      opacity: 1;
+      visibility: visible;
+      transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.8s ease-out;
+      cursor: pointer;
+    }
+
+    .loader-container.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .pl {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      transform: rotateX(30deg) rotateZ(45deg);
+      width: 14em;
+      height: 14em;
+      color: white;
+      border-radius: 50%;
+    }
+
+    .pl__dot {
+      animation-name: shadow724;
+      animation-duration: 2s;
+      animation-iteration-count: infinite;
+      box-shadow: 0.1em 0.1em 0 0.1em black, 0.3em 0 0.3em rgba(0, 0, 0, 0.5);
+      top: calc(50% - 0.75em);
+      left: calc(50% - 0.75em);
+      width: 1.5em;
+      height: 1.5em;
+      position: absolute;
+      border-radius: 50%;
+    }
+
+    .pl__dot:before, .pl__dot:after {
+      content: "";
+      display: block;
+      left: 0;
+      width: inherit;
+      position: absolute;
+      animation-duration: 2s;
+      animation-iteration-count: infinite;
+    }
+
+    .pl__dot:before {
+      animation-name: pushInOut1724;
+      background-color: var(--bg);
+      border-radius: inherit;
+      box-shadow: 0.05em 0 0.1em rgba(255, 255, 255, 0.2) inset;
+      height: inherit;
+      z-index: 1;
+    }
+
+    .pl__dot:after {
+      animation-name: pushInOut2724;
+      background-color: var(--cyan);
+      border-radius: 0.75em;
+      box-shadow: 0.1em 0.3em 0.2em rgba(255, 255, 255, 0.4) inset;
+      bottom: 0;
+      clip-path: polygon(0 75%, 100% 75%, 100% 100%, 0 100%);
+      height: 3em;
+      transform: rotate(-45deg);
+      transform-origin: 50% 2.25em;
+    }
+
+    .pl__dot:nth-child(1) { transform: rotate(0deg) translateX(5em) rotate(0deg); z-index: 5; animation-delay: 0s; }
+    .pl__dot:nth-child(2) { transform: rotate(-30deg) translateX(5em) rotate(30deg); z-index: 4; animation-delay: -0.16666s; }
+    .pl__dot:nth-child(3) { transform: rotate(-60deg) translateX(5em) rotate(60deg); z-index: 3; animation-delay: -0.33333s; }
+    .pl__dot:nth-child(4) { transform: rotate(-90deg) translateX(5em) rotate(90deg); z-index: 2; animation-delay: -0.5s; }
+    .pl__dot:nth-child(5) { transform: rotate(-120deg) translateX(5em) rotate(120deg); z-index: 1; animation-delay: -0.66666s; }
+    .pl__dot:nth-child(6) { transform: rotate(-150deg) translateX(5em) rotate(150deg); z-index: 1; animation-delay: -0.83333s; }
+    .pl__dot:nth-child(7) { transform: rotate(-180deg) translateX(5em) rotate(180deg); z-index: 2; animation-delay: -1s; }
+    .pl__dot:nth-child(8) { transform: rotate(-210deg) translateX(5em) rotate(210deg); z-index: 3; animation-delay: -1.16666s; }
+    .pl__dot:nth-child(9) { transform: rotate(-240deg) translateX(5em) rotate(240deg); z-index: 4; animation-delay: -1.33333s; }
+    .pl__dot:nth-child(10) { transform: rotate(-270deg) translateX(5em) rotate(270deg); z-index: 5; animation-delay: -1.5s; }
+    .pl__dot:nth-child(11) { transform: rotate(-300deg) translateX(5em) rotate(300deg); z-index: 6; animation-delay: -1.66666s; }
+    .pl__dot:nth-child(12) { transform: rotate(-330deg) translateX(5em) rotate(330deg); z-index: 6; animation-delay: -1.83333s; }
+
+    .pl__text {
+      font-size: 0.75em;
+      position: absolute;
+      text-shadow: 0 0 0.2em var(--cyan);
+      transform: rotateZ(-45deg);
+      color: var(--cyan);
+      font-family: 'Orbitron', monospace;
+      letter-spacing: 2px;
+      text-align: center;
+    }
+
+    @keyframes shadow724 {
+      from { box-shadow: 0.1em 0.1em 0 0.1em black, 0.3em 0 0.3em rgba(0, 0, 0, 0.3); }
+      25% { box-shadow: 0.1em 0.1em 0 0.1em black, 0.8em 0 0.8em rgba(0, 0, 0, 0.5); }
+      50%, to { box-shadow: 0.1em 0.1em 0 0.1em black, 0.3em 0 0.3em rgba(0, 0, 0, 0.3); }
+    }
+
+    @keyframes pushInOut1724 {
+      from { background-color: var(--bg); transform: translate(0, 0); }
+      25% { background-color: var(--cyan); transform: translate(-71%, -71%); }
+      50%, to { background-color: var(--bg); transform: translate(0, 0); }
+    }
+
+    @keyframes pushInOut2724 {
+      from { background-color: var(--bg); clip-path: polygon(0 75%, 100% 75%, 100% 100%, 0 100%); }
+      25% { background-color: var(--cyan); clip-path: polygon(0 25%, 100% 25%, 100% 100%, 0 100%); }
+      50%, to { background-color: var(--bg); clip-path: polygon(0 75%, 100% 75%, 100% 100%, 0 100%); }
+    }
+
+    @keyframes glitch { 0%, 100% { text-shadow: 0 0 10px var(--cyan); } 50% { text-shadow: 0 0 20px var(--magenta); } }
+    @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    
+    @keyframes orb-rotate {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes particle-float {
+      0% { transform: translateY(0px) translateX(0px); opacity: 1; }
+      100% { transform: translateY(-100px) translateX(30px); opacity: 0; }
+    }
+
+    @keyframes waveAnimation {
+      0%, 100% { transform: translateY(0px); opacity: 1; }
+      50% { transform: translateY(-15px); opacity: 0.7; }
+    }
+
+    @keyframes orb-pulse {
+      0%, 100% { box-shadow: 0 0 40px rgba(0, 245, 255, 0.6), inset 0 0 30px rgba(189, 0, 255, 0.4); transform: scale(1); }
+      50% { box-shadow: 0 0 60px rgba(0, 245, 255, 0.8), inset 0 0 40px rgba(189, 0, 255, 0.6); transform: scale(1.05); }
+    }
+
+    @keyframes ring-rotate {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes orbit-particle {
+      0% { transform: rotate(0deg) translateX(35px); opacity: 1; }
+      100% { transform: rotate(360deg) translateX(35px); opacity: 0.5; }
+    }
+
+    @keyframes pulse-scale {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.1); opacity: 0.8; }
+    }
+
+    .section {
+      padding: 3rem 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+      min-height: auto; /* CORREGIDO: Fue 100vh, ahora auto */
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start; /* CORREGIDO: Fue center, ahora flex-start */
+      position: relative;
+      z-index: 10;
+    }
+
+    .hidden { display: none; }
+    main { position: relative; z-index: 10; margin: 0; padding: 0; }
+
+    /* HERO - CORREGIDO */
+    .hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 2rem; /* CORREGIDO: Reducido de 3rem */
+      min-height: 100vh; /* SOLO PARA HERO - es la sección inicial */
+      padding: 2rem 2rem !important; /* OVERRIDE explícito */
+    }
+
+    .hero-title {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(3rem, 10vw, 6rem);
+      font-weight: 900;
+      color: white;
+      letter-spacing: 4px;
+      animation: glitch 4s infinite;
+      text-shadow: 0 0 30px rgba(0, 245, 255, 0.3);
+      margin: 0; /* CORREGIDO: Sin márgenes */
+      line-height: 1.1;
+    }
+
+    .hero-title span { color: var(--cyan); text-shadow: 0 0 40px var(--cyan); }
+
+    .hero p {
+      font-size: 1.1rem;
+      color: var(--text-dim);
+      max-width: 700px;
+      margin: 0; /* CORREGIDO: Sin márgenes */
+      padding: 0 1rem;
+    }
+
+    .nav-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem; /* CORREGIDO: Reducido de 2rem */
+      margin-top: 1.5rem; /* CORREGIDO: Reducido de 3rem */
+      width: 100%;
+      max-width: 1200px;
+      padding: 0; /* CORREGIDO: Sin padding */
+    }
+
+    .nav-card {
+      background: var(--panel);
+      border: 2px solid var(--border);
+      padding: 1.5rem; /* CORREGIDO: Reducido de 2.5rem */
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.4s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.8rem; /* CORREGIDO: Reducido de 1rem */
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* MEJORADA: Efecto de brillo dinámico al pasar el mouse */
+    .nav-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(0, 245, 255, 0.1), transparent);
+      transition: left 0.5s ease;
+      z-index: 0;
+    }
+
+    .nav-card:hover::before {
+      left: 100%;
+    }
+
+    .nav-card:hover {
+      border-color: var(--cyan);
+      box-shadow: 0 0 30px rgba(0, 245, 255, 0.25);
+      transform: translateY(-12px);
+    }
+
+    /* Asegurar z-index correcto para el contenido */
+    .nav-icon { font-size: 3rem; animation: float 2s infinite; margin: 0; position: relative; z-index: 1; }
+    .nav-title { font-family: 'Orbitron', monospace; font-size: 1.3rem; color: var(--cyan); margin: 0; position: relative; z-index: 1; }
+    .nav-desc { font-size: 0.9rem; color: var(--text-dim); margin: 0; position: relative; z-index: 1; }
+
+    /* CONTAINER GRID 2 COLUMNAS - CORREGIDO */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem; /* CORREGIDO: Reducido de 30px */
+      margin-top: 0; /* CORREGIDO: Fue 2rem, ahora 0 */
+      width: 100%;
+    }
+
+    .box {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      padding: 1.5rem; /* CORREGIDO: Reducido de 30px */
+      border-radius: 4px;
+      min-height: auto; /* CORREGIDO: Fue 500px, ahora auto */
+      display: flex;
+      flex-direction: column;
+    }
+
+    .box h2 {
+      color: var(--cyan);
+      margin-bottom: 20px;
+      font-size: 1.5rem;
+      font-family: 'Orbitron', monospace;
+    }
+
+    /* IA MESSAGES */
+    .messages-box {
+      background: rgba(0, 245, 255, 0.05);
+      padding: 15px;
+      border-left: 3px solid var(--cyan);
+      margin-bottom: 15px;
+      height: 200px;
+      overflow-y: auto;
+      flex: 1;
+      border-radius: 2px;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .messages-box::-webkit-scrollbar { width: 4px; }
+    .messages-box::-webkit-scrollbar-thumb { background: var(--cyan); }
+
+    /* TEXTAREA */
+    textarea {
+      width: 100%;
+      height: 80px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 12px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.9rem;
+      margin-bottom: 12px;
+      resize: none;
+      border-radius: 2px;
+    }
+
+    textarea:focus {
+      border-color: var(--cyan);
+      outline: none;
+      box-shadow: 0 0 10px rgba(0, 245, 255, 0.2);
+    }
+
+    /* BUTTON */
+    button {
+      background: transparent;
+      border: 1px solid var(--violet);
+      color: var(--violet);
+      padding: 12px 20px;
+      cursor: pointer;
+      width: 100%;
+      border-radius: 2px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: all 0.3s;
+    }
+
+    button:hover {
+      background: rgba(189, 0, 255, 0.12);
+      box-shadow: 0 0 15px rgba(189, 0, 255, 0.3);
+    }
+
+    /* TECH DISPLAY */
+    .tech-display {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 245, 255, 0.08);
+      border: 1px solid rgba(0, 245, 255, 0.25);
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .tech-icon {
+      width: 80px;
+      height: 80px;
+      color: var(--cyan);
+      filter: drop-shadow(0 0 4px rgba(0, 245, 255, 0.4));
+    }
+
+    .tech-labels {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .tech-label {
+      background: rgba(0, 245, 255, 0.1);
+      border: 1px solid rgba(0, 245, 255, 0.3);
+      padding: 6px 12px;
+      border-radius: 2px;
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      font-family: 'Share Tech Mono', monospace;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .tech-label:hover {
+      color: var(--cyan);
+      border-color: rgba(0, 245, 255, 0.5);
+      box-shadow: 0 0 10px rgba(0, 245, 255, 0.2);
+    }
+
+    /* BUTTONS */
+    .btn-back {
+      display: inline-block;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      border: 1px solid var(--border);
+      padding: 10px 16px;
+      text-decoration: none;
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.3s;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 2rem;
+      border-radius: 2px;
+    }
+
+    .btn-back:hover {
+      color: var(--cyan);
+      border-color: var(--cyan);
+      box-shadow: 0 0 15px rgba(0, 245, 255, 0.3);
+    }
+
+    /* FLOATING PROFILE */
+    .floating-profile {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      align-items: flex-end;
+      z-index: 500;
+    }
+
+    .xp-badge {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--amber);
+      background: var(--panel);
+      border: 1px solid var(--amber);
+      padding: 10px 16px;
+      border-radius: 2px;
+      letter-spacing: 1.5px;
+      box-shadow: 0 0 20px rgba(255, 170, 0, 0.2);
+      text-transform: uppercase;
+    }
+
+    .avatar-btn {
+      width: 50px;
+      height: 50px;
+      background: linear-gradient(135deg, var(--cyan), var(--violet));
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      border-radius: 2px;
+      border: 2px solid var(--cyan);
+      transition: all 0.3s;
+      box-shadow: 0 0 20px rgba(0, 245, 255, 0.2);
+    }
+
+    .avatar-btn:hover {
+      transform: scale(1.15);
+      box-shadow: 0 0 30px rgba(0, 245, 255, 0.4);
+    }
+
+    /* MODAL */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(5px);
+    }
+
+    .modal.active { display: flex; }
+
+    .modal-box {
+      background: var(--panel);
+      border: 2px solid var(--cyan);
+      padding: 3rem;
+      max-width: 550px;
+      border-radius: 4px;
+      box-shadow: 0 0 80px rgba(0, 245, 255, 0.4);
+      animation: slideDown 0.4s ease;
+    }
+
+    .modal-box h2 {
+      font-family: 'Orbitron', monospace;
+      font-size: 1.8rem;
+      color: var(--cyan);
+      margin-bottom: 2rem;
+      border-bottom: 1px solid var(--cyan);
+      padding-bottom: 1rem;
+      letter-spacing: 2px;
+    }
+
+    .modal-stat {
+      display: flex;
+      justify-content: space-between;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      background: rgba(0, 245, 255, 0.05);
+      border-left: 4px solid var(--cyan);
+      border-radius: 2px;
+    }
+
+    .modal-stat-label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+    }
+
+    .modal-stat-value {
+      font-family: 'Orbitron', monospace;
+      font-size: 1.3rem;
+      color: var(--cyan);
+      font-weight: 700;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .modal-buttons button {
+      flex: 1;
+      padding: 12px;
+      border: 1px solid var(--cyan);
+      background: transparent;
+      color: var(--cyan);
+      cursor: pointer;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      border-radius: 2px;
+      transition: all 0.3s;
+    }
+
+    .modal-buttons button:hover {
+      background: rgba(0, 245, 255, 0.15);
+      box-shadow: 0 0 20px rgba(0, 245, 255, 0.4);
+    }
+
+    .modal-close {
+      float: right;
+      background: transparent;
+      border: 1px solid var(--magenta);
+      color: var(--magenta);
+      cursor: pointer;
+      padding: 6px 14px;
+      font-size: 0.75rem;
+      border-radius: 2px;
+      transition: all 0.2s;
+    }
+
+    .modal-close:hover {
+      background: rgba(255, 0, 110, 0.15);
+      box-shadow: 0 0 15px rgba(255, 0, 110, 0.3);
+    }
+
+    /* NOTIFICATION */
+    .notification {
+      position: fixed;
+      bottom: 2rem;
+      left: 2rem;
+      background: var(--panel);
+      border: 1px solid var(--cyan);
+      padding: 1rem 1.5rem;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--cyan);
+      z-index: 2001;
+      opacity: 0;
+      transform: translateX(-100px);
+      transition: all 0.4s;
+      max-width: 300px;
+      box-shadow: 0 0 20px rgba(0, 245, 255, 0.2);
+      letter-spacing: 1px;
+    }
+
+    .notification.show { opacity: 1; transform: translateX(0); }
+
+    /* RESPONSIVE - MEJORADO Y CORREGIDO */
+    
+    /* BARRA DE PROGRESO XP - MEJORADA */
+    .xp-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--cyan), var(--violet), var(--green));
+      transition: width 0.3s ease;
+      z-index: 10001;
+      box-shadow: 0 0 10px rgba(0, 245, 255, 0.5);
+      animation: pulse-progress 2s ease-in-out infinite;
+    }
+
+    /* MEJORADA: Animación sutil de pulso para la barra XP */
+    @keyframes pulse-progress {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.8; box-shadow: 0 0 15px rgba(0, 245, 255, 0.7); }
+    }
+
+    /* SECCIÓN ESPECÍFICA: TECNOLOGÍAS */
+    #tecnologias {
+      text-align: center;
+    }
+    
+    @media (max-width: 1024px) {
+      .container { grid-template-columns: 1fr; }
+      .nav-grid { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+    }
+
+    @media (max-width: 768px) {
+      .section { padding: 2rem 1rem; }
+      
+      .hero {
+        min-height: auto;
+        padding: 2rem 1rem !important;
+        gap: 1.5rem;
+      }
+      
+      .hero-title {
+        font-size: clamp(2rem, 8vw, 3.5rem);
+      }
+      
+      .hero p {
+        font-size: 1rem;
+        padding: 0;
+      }
+      
+      .nav-grid { 
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        margin-top: 1rem;
+      }
+      
+      .nav-card {
+        padding: 1rem;
+        gap: 0.6rem;
+      }
+      
+      .nav-icon {
+        font-size: 2rem;
+      }
+      
+      .nav-title {
+        font-size: 1.1rem;
+      }
+      
+      .container { 
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+      
+      .box { 
+        min-height: auto;
+        padding: 1rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        font-size: 14px;
+      }
+      
+      .section {
+        padding: 1.5rem 0.5rem;
+      }
+      
+      .hero {
+        min-height: auto;
+        padding: 1rem 0.5rem !important;
+        gap: 1rem;
+      }
+      
+      .hero-title {
+        font-size: clamp(1.5rem, 6vw, 2.5rem);
+        letter-spacing: 2px;
+      }
+      
+      .hero p {
+        font-size: 0.9rem;
+        padding: 0 0.5rem;
+      }
+      
+      .nav-grid {
+        grid-template-columns: 1fr;
+        gap: 0.8rem;
+        margin-top: 0.8rem;
+        padding: 0 0.5rem;
+      }
+      
+      .nav-card {
+        padding: 0.8rem;
+        gap: 0.5rem;
+      }
+      
+      .nav-icon {
+        font-size: 1.5rem;
+      }
+      
+      .nav-title {
+        font-size: 1rem;
+      }
+      
+      .container {
+        gap: 0.8rem;
+        padding: 0;
+      }
+      
+      .box {
+        padding: 0.8rem;
+      }
+      
+      .floating-profile {
+        bottom: 1rem;
+        right: 1rem;
+      }
+      
+      .notification {
+        left: 0.5rem;
+        bottom: 1rem;
+        width: calc(100% - 1rem);
+        max-width: none;
+      }
+
+      /* MEJORADA: Ajustar menú de navegación en móviles */
+      .nav-menu-fixed {
+        top: 0.5rem !important;
+        left: 0.3rem !important;
+        max-width: 140px !important;
+        gap: 0.2rem !important;
+      }
+      
+      .nav-menu-fixed button {
+        padding: 4px 6px !important;
+        font-size: 0.6rem !important;
+        border-radius: 16px !important;
+      }
+      
+      /* MEJORADA: Ajustar botón VOLVER para que no choque */
+      .btn-back {
+        margin-top: 2rem !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- PERFIL FLOTANTE -->
+  <!-- PANTALLA DE LOGIN -->
+  <div id="loginScreen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: flex-start; overflow-y: auto; z-index: 10000; padding: 2rem 0;">
+    <!-- CONTENEDOR DEL FORMULARIO -->
+    <div style="max-width: 480px; width: 90%; padding: 2rem; background: var(--panel); border: 2px solid rgba(0, 245, 255, 0.3); border-radius: 8px; box-shadow: 0 0 40px rgba(0, 245, 255, 0.2); margin-bottom: 2rem;">
+      <!-- LOGO -->
+      <div style="text-align: center; margin-bottom: 2rem;">
+        <h1 style="font-family: 'Orbitron', monospace; font-size: 3rem; color: white; margin: 0 0 0.5rem 0;">
+          <span style="color: var(--cyan);">NEX</span>US
+        </h1>
+        <p style="color: var(--text-dim); font-size: 0.9rem; letter-spacing: 2px; text-transform: uppercase; margin: 0;">v7.0 - Plataforma Educativa</p>
+      </div>
+
+      <!-- TABS LOGIN/REGISTRO -->
+      <div style="display: flex; gap: 1rem; margin-bottom: 2rem; border-bottom: 2px solid var(--border); padding-bottom: 1rem;">
+        <button onclick="appState.switchAuthTab('login')" id="loginTab" style="margin: 0; padding: 10px 20px; background: transparent; border: none; color: var(--cyan); font-family: 'Share Tech Mono', monospace; text-transform: uppercase; font-size: 0.85rem; cursor: pointer; border-bottom: 2px solid var(--cyan);">🔐 Iniciar Sesión</button>
+        <button onclick="appState.switchAuthTab('register')" id="registerTab" style="margin: 0; padding: 10px 20px; background: transparent; border: none; color: var(--text-dim); font-family: 'Share Tech Mono', monospace; text-transform: uppercase; font-size: 0.85rem; cursor: pointer; border-bottom: 2px solid transparent;">📝 Registrarse</button>
+      </div>
+
+      <!-- BOTONES DE LOGIN SOCIAL MEJORADOS -->
+      <div style="margin: 2rem 0; padding: 2rem 0; border-top: 2px solid rgba(0, 245, 255, 0.2); border-bottom: 2px solid rgba(0, 245, 255, 0.2);">
+        <p style="text-align: center; color: var(--cyan); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 1.5rem; font-weight: bold;">✦ O INGRESA CON ✦</p>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
+          <button onclick="appState.socialLogin('google')" style="margin: 0; padding: 14px; background: linear-gradient(135deg, rgba(66, 133, 244, 0.25), rgba(66, 133, 244, 0.1)); border: 2px solid rgba(66, 133, 244, 0.4); color: #4285f4; border-radius: 4px; cursor: pointer; font-family: 'Share Tech Mono', monospace; text-transform: uppercase; font-size: 0.8rem; font-weight: bold; transition: all 0.3s; position: relative; overflow: hidden;">
+            <div style="position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(66, 133, 244, 0.2), transparent); transform: translateX(-100%); animation: shimmer 2s infinite;"></div>
+            🔵 GOOGLE
+          </button>
+          <button onclick="appState.socialLogin('github')" style="margin: 0; padding: 14px; background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05)); border: 2px solid rgba(255, 255, 255, 0.25); color: white; border-radius: 4px; cursor: pointer; font-family: 'Share Tech Mono', monospace; text-transform: uppercase; font-size: 0.8rem; font-weight: bold; transition: all 0.3s; position: relative; overflow: hidden;">
+            <div style="position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent); transform: translateX(-100%); animation: shimmer 2s infinite;"></div>
+            ⚫ GITHUB
+          </button>
+          <button onclick="appState.socialLogin('facebook')" style="margin: 0; padding: 14px; background: linear-gradient(135deg, rgba(59, 89, 152, 0.25), rgba(59, 89, 152, 0.1)); border: 2px solid rgba(59, 89, 152, 0.4); color: #3b5998; border-radius: 4px; cursor: pointer; font-family: 'Share Tech Mono', monospace; text-transform: uppercase; font-size: 0.8rem; font-weight: bold; transition: all 0.3s; position: relative; overflow: hidden;">
+            <div style="position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(59, 89, 152, 0.2), transparent); transform: translateX(-100%); animation: shimmer 2s infinite;"></div>
+            📘 FACEBOOK
+          </button>
+          <button onclick="appState.socialLogin('discord')" style="margin: 0; padding: 14px; background: linear-gradient(135deg, rgba(88, 101, 242, 0.25), rgba(88, 101, 242, 0.1)); border: 2px solid rgba(88, 101, 242, 0.4); color: #5865f2; border-radius: 4px; cursor: pointer; font-family: 'Share Tech Mono', monospace; text-transform: uppercase; font-size: 0.8rem; font-weight: bold; transition: all 0.3s; position: relative; overflow: hidden;">
+            <div style="position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(88, 101, 242, 0.2), transparent); transform: translateX(-100%); animation: shimmer 2s infinite;"></div>
+            🎮 DISCORD
+          </button>
+          <button onclick="appState.socialLogin('microsoft')" style="margin: 0; padding: 14px; background: linear-gradient(135deg, rgba(0, 120, 215, 0.25), rgba(0, 120, 215, 0.1)); border: 2px solid rgba(0, 120, 215, 0.4); color: #0078d4; border-radius: 4px; cursor: pointer; font-family: 'Share Tech Mono', monospace; text-transform: uppercase; font-size: 0.8rem; font-weight: bold; transition: all 0.3s; position: relative; overflow: hidden;">
+            <div style="position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(0, 120, 215, 0.2), transparent); transform: translateX(-100%); animation: shimmer 2s infinite;"></div>
+            🪟 MICROSOFT
+          </button>
+          <button onclick="appState.socialLogin('apple')" style="margin: 0; padding: 14px; background: linear-gradient(135deg, rgba(200, 200, 200, 0.25), rgba(200, 200, 200, 0.1)); border: 2px solid rgba(200, 200, 200, 0.35); color: #bbb; border-radius: 4px; cursor: pointer; font-family: 'Share Tech Mono', monospace; text-transform: uppercase; font-size: 0.8rem; font-weight: bold; transition: all 0.3s; position: relative; overflow: hidden;">
+            <div style="position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(200, 200, 200, 0.15), transparent); transform: translateX(-100%); animation: shimmer 2s infinite;"></div>
+            🍎 APPLE
+          </button>
+        </div>
+        <style>
+          @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+          }
+        </style>
+      </div>
+      
+      <!-- CONTENIDO LOGIN -->
+      <div id="loginForm" style="display: block;">
+        <div style="margin-bottom: 1rem;">
+          <label style="color: var(--text-dim); font-size: 0.75rem; display: block; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px;">📧 Email</label>
+          <input type="email" id="loginEmail" placeholder="tu@email.com" style="width: 100%; padding: 12px; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 4px; font-family: 'Rajdhani', sans-serif; margin-bottom: 1rem;">
+        </div>
+
+        <div style="margin-bottom: 2rem;">
+          <label style="color: var(--text-dim); font-size: 0.75rem; display: block; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px;">🔑 Contraseña</label>
+          <input type="password" id="loginPassword" placeholder="••••••••" style="width: 100%; padding: 12px; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 4px; font-family: 'Rajdhani', sans-serif; margin-bottom: 1rem;">
+        </div>
+
+        <button onclick="appState.loginUser()" style="width: 100%; padding: 12px; background: transparent; border: 2px solid var(--cyan); color: var(--cyan); border-radius: 4px; font-family: 'Share Tech Mono', monospace; text-transform: uppercase; font-weight: bold; cursor: pointer; margin-bottom: 1rem; font-size: 0.85rem;">▶ INICIAR SESIÓN</button>
+
+        <p style="text-align: center; color: var(--text-dim); font-size: 0.8rem;">Sin cuenta? <button onclick="appState.switchAuthTab('register')" style="background: none; border: none; color: var(--cyan); cursor: pointer; font-family: 'Share Tech Mono', monospace; text-decoration: underline;">Regístrate aquí</button></p>
+      </div>
+
+      <!-- CONTENIDO REGISTRO -->
+      <div id="registerForm" style="display: none;">
+        <div style="margin-bottom: 1rem;">
+          <label style="color: var(--text-dim); font-size: 0.75rem; display: block; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px;">👤 Nombre de Usuario</label>
+          <input type="text" id="registerUsername" placeholder="Tu nombre" style="width: 100%; padding: 12px; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 4px; font-family: 'Rajdhani', sans-serif; margin-bottom: 1rem;">
+        </div>
+
+        <div style="margin-bottom: 1rem;">
+          <label style="color: var(--text-dim); font-size: 0.75rem; display: block; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px;">📧 Email</label>
+          <input type="email" id="registerEmail" placeholder="tu@email.com" style="width: 100%; padding: 12px; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 4px; font-family: 'Rajdhani', sans-serif; margin-bottom: 1rem;">
+        </div>
+
+        <div style="margin-bottom: 2rem;">
+          <label style="color: var(--text-dim); font-size: 0.75rem; display: block; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px;">🔑 Contraseña</label>
+          <input type="password" id="registerPassword" placeholder="••••••••" style="width: 100%; padding: 12px; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 4px; font-family: 'Rajdhani', sans-serif; margin-bottom: 1rem;">
+        </div>
+
+        <button onclick="appState.registerUser()" style="width: 100%; padding: 12px; background: transparent; border: 2px solid var(--green); color: var(--green); border-radius: 4px; font-family: 'Share Tech Mono', monospace; text-transform: uppercase; font-weight: bold; cursor: pointer; margin-bottom: 1rem; font-size: 0.85rem;">✓ CREAR CUENTA</button>
+
+        <p style="text-align: center; color: var(--text-dim); font-size: 0.8rem;">¿Ya tienes cuenta? <button onclick="appState.switchAuthTab('login')" style="background: none; border: none; color: var(--cyan); cursor: pointer; font-family: 'Share Tech Mono', monospace; text-decoration: underline;">Inicia sesión</button></p>
+      </div>
+    </div>
+
+    <!-- INFO PROTEGIDO - DEBAJO DEL FORMULARIO -->
+    <div style="max-width: 480px; width: 90%; padding: 1.5rem; background: linear-gradient(135deg, rgba(0, 255, 65, 0.15), rgba(0, 245, 255, 0.1)); border: 2px solid rgba(0, 255, 65, 0.4); border-radius: 4px; position: relative; overflow: hidden; margin-bottom: 3rem;">
+        <!-- FONDO ANIMADO -->
+        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0, 255, 65, 0.05) 2px, rgba(0, 255, 65, 0.05) 4px); animation: scanlines 8s linear infinite; pointer-events: none;"></div>
+        
+        <div style="position: relative; z-index: 1;">
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 1rem;">
+            <span style="font-size: 1.5rem; animation: pulse 2s ease-in-out infinite;">💾</span>
+            <h4 style="margin: 0; color: var(--green); font-family: 'Orbitron', monospace; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 1px;">Tu Progreso Protegido</h4>
+          </div>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="color: var(--green); font-size: 1.2rem;">✓</span>
+              <span style="color: var(--text); font-size: 0.85rem;">Guardado automático</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="color: var(--green); font-size: 1.2rem;">✓</span>
+              <span style="color: var(--text); font-size: 0.85rem;">Acceso multiplataforma</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="color: var(--green); font-size: 1.2rem;">✓</span>
+              <span style="color: var(--text); font-size: 0.85rem;">Cuentas vinculadas</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="color: var(--green); font-size: 1.2rem;">✓</span>
+              <span style="color: var(--text); font-size: 0.85rem;">Sincronización en tiempo real</span>
+            </div>
+          </div>
+          
+          <p style="margin: 0; color: var(--text-dim); font-size: 0.8rem; line-height: 1.5;">
+            Tus datos, XP, nivel, configuración y perfil se guardan automáticamente en tu cuenta. Accede desde cualquier dispositivo manteniendo todo tu progreso intacto.
+          </p>
+        </div>
+      </div>
+
+      <!-- ANIMACIÓN SCANLINES -->
+      <style>
+        @keyframes scanlines {
+          0% { transform: translateY(0); }
+          100% { transform: translateY(4px); }
+        }
+      </style>
+  </div>
+
+  <div class="matrix-container">
+      <div class="matrix-pattern">
+        <div class="matrix-column"></div>
+        <div class="matrix-column"></div>
+        <div class="matrix-column"></div>
+        <div class="matrix-column"></div>
+        <div class="matrix-column"></div>
+        <div class="matrix-column"></div>
+        <div class="matrix-column"></div>
+        <div class="matrix-column"></div>
+        <div class="matrix-column"></div>
+        <div class="matrix-column"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BARRA DE PROGRESO XP -->
+  <div id="xpProgress" class="xp-progress" style="width: 0%;"></div>
+
+  <!-- LOADER -->
+  <div class="loader-container" id="loader">
+    <div class="pl">
+      <div class="pl__dot"></div>
+      <div class="pl__dot"></div>
+      <div class="pl__dot"></div>
+      <div class="pl__dot"></div>
+      <div class="pl__dot"></div>
+      <div class="pl__dot"></div>
+      <div class="pl__dot"></div>
+      <div class="pl__dot"></div>
+      <div class="pl__dot"></div>
+      <div class="pl__dot"></div>
+      <div class="pl__dot"></div>
+      <div class="pl__dot"></div>
+      <div class="pl__text">NEXUS v7<br><small style="font-size: 0.5em; display: block; margin-top: 0.5em;">Cargando...</small></div>
+    </div>
+  </div>
+
+  <!-- MENÚ DE NAVEGACIÓN RÁPIDA - MEJORADO -->
+  <div class="nav-menu-fixed" style="position: fixed; top: 2rem; left: 2rem; z-index: 500; display: flex; gap: 0.5rem; flex-wrap: wrap; max-width: 250px;">
+    <button onclick="show('hero')" style="width: auto; padding: 8px 12px; background: var(--panel); border: 1px solid var(--cyan); color: var(--cyan); font-size: 0.7rem; border-radius: 20px; cursor: pointer; font-family: 'Share Tech Mono', monospace; transition: all 0.3s; font-weight: bold;">🏠 INICIO</button>
+    <button onclick="show('ia')" style="width: auto; padding: 8px 12px; background: var(--panel); border: 1px solid var(--cyan); color: var(--cyan); font-size: 0.7rem; border-radius: 20px; cursor: pointer; font-family: 'Share Tech Mono', monospace; transition: all 0.3s; font-weight: bold;">🤖 IA</button>
+    <button onclick="show('recursos')" style="width: auto; padding: 8px 12px; background: var(--panel); border: 1px solid var(--cyan); color: var(--cyan); font-size: 0.7rem; border-radius: 20px; cursor: pointer; font-family: 'Share Tech Mono', monospace; transition: all 0.3s; font-weight: bold;">📚 RECURSOS</button>
+    <button onclick="show('quizzes')" style="width: auto; padding: 8px 12px; background: var(--panel); border: 1px solid var(--cyan); color: var(--cyan); font-size: 0.7rem; border-radius: 20px; cursor: pointer; font-family: 'Share Tech Mono', monospace; transition: all 0.3s; font-weight: bold;">❓ QUIZZES</button>
+    <button onclick="show('labs')" style="width: auto; padding: 8px 12px; background: var(--panel); border: 1px solid var(--cyan); color: var(--cyan); font-size: 0.7rem; border-radius: 20px; cursor: pointer; font-family: 'Share Tech Mono', monospace; transition: all 0.3s; font-weight: bold;">⚡ LABS</button>
+    <button onclick="show('logros')" style="width: auto; padding: 8px 12px; background: var(--panel); border: 1px solid var(--cyan); color: var(--cyan); font-size: 0.7rem; border-radius: 20px; cursor: pointer; font-family: 'Share Tech Mono', monospace; transition: all 0.3s; font-weight: bold;">🏆 LOGROS</button>
+    
+    <!-- 🌍 BOTÓN PARA CAMBIAR IDIOMA -->
+    <div style="position: relative; display: inline-block;">
+      <button id="languageBtn" onclick="document.getElementById('languageDropdown').style.display = document.getElementById('languageDropdown').style.display === 'none' ? 'flex' : 'none'" style="width: auto; padding: 8px 12px; background: var(--panel); border: 1px solid #ffaa00; color: #ffaa00; font-size: 0.7rem; border-radius: 20px; cursor: pointer; font-family: 'Share Tech Mono', monospace; transition: all 0.3s; font-weight: bold;">🌍 ES/EN</button>
+      
+      <!-- Dropdown de idiomas -->
+      <div id="languageDropdown" style="position: absolute; top: 50px; left: -20px; background: var(--panel); border: 2px solid #ffaa00; border-radius: 8px; padding: 0.5rem; display: none; flex-direction: column; gap: 0.3rem; z-index: 1001; min-width: 120px; box-shadow: 0 0 20px rgba(255, 170, 0, 0.3);">
+        <button onclick="appState.changeLanguage('es'); document.getElementById('languageDropdown').style.display = 'none';" style="width: 100%; padding: 8px; background: transparent; border: 1px solid #00ff41; color: #00ff41; font-size: 0.65rem; border-radius: 4px; cursor: pointer; font-family: 'Share Tech Mono', monospace; transition: all 0.2s; text-align: left;">🇪🇸 Español</button>
+        <button onclick="appState.changeLanguage('en'); document.getElementById('languageDropdown').style.display = 'none';" style="width: 100%; padding: 8px; background: transparent; border: 1px solid #61dafb; color: #61dafb; font-size: 0.65rem; border-radius: 4px; cursor: pointer; font-family: 'Share Tech Mono', monospace; transition: all 0.2s; text-align: left;">🇺🇸 English</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FLOATING PROFILE CON UIVERSE ANIMADO -->
+  <div class="floating-profile">
+    <div class="xp-badge" id="xpBadge">⬡ 0 XP</div>
+    <div style="text-align: center; font-size: 0.7rem; color: var(--text-dim); max-width: 60px; word-break: break-word;">
+      <p style="margin: 0 0 4px 0; text-transform: uppercase; letter-spacing: 0.5px;" id="usernameBadge">Usuario</p>
+    </div>
+    <!-- BOTÓN UIVERSE ANIMADO -->
+    <div id="avatarBtn" onclick="openProfile()" class="uiverse-avatar-btn" style="position: relative; width: 70px; height: 70px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 100;">
+      <!-- ORB PRINCIPAL -->
+      <div style="position: absolute; width: 60px; height: 60px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, rgba(0, 245, 255, 0.6), rgba(189, 0, 255, 0.3)); box-shadow: 0 0 40px rgba(0, 245, 255, 0.6), inset 0 0 30px rgba(189, 0, 255, 0.4); animation: orb-pulse 3s ease-in-out infinite; z-index: 1;"></div>
+      
+      <!-- ANILLO EXTERNO ROTATORIO -->
+      <div style="position: absolute; width: 70px; height: 70px; border-radius: 50%; border: 2px solid transparent; border-top: 2px solid rgba(0, 245, 255, 0.8); border-right: 2px solid rgba(189, 0, 255, 0.6); animation: ring-rotate 4s linear infinite; z-index: 2;"></div>
+      
+      <!-- ANILLO INTERNO ROTATORIO INVERSO -->
+      <div style="position: absolute; width: 50px; height: 50px; border-radius: 50%; border: 1px solid transparent; border-bottom: 1px solid rgba(0, 255, 65, 0.6); border-left: 1px solid rgba(0, 245, 255, 0.4); animation: ring-rotate 3s linear infinite reverse; z-index: 2;"></div>
+      
+      <!-- PARTÍCULAS ORBITALES -->
+      <div style="position: absolute; width: 4px; height: 4px; background: var(--cyan); border-radius: 50%; box-shadow: 0 0 8px var(--cyan); animation: orbit-particle 6s linear infinite; z-index: 3;"></div>
+      <div style="position: absolute; width: 4px; height: 4px; background: var(--violet); border-radius: 50%; box-shadow: 0 0 8px var(--violet); animation: orbit-particle 6s linear infinite; animation-delay: 2s; z-index: 3;"></div>
+      <div style="position: absolute; width: 4px; height: 4px; background: var(--green); border-radius: 50%; box-shadow: 0 0 8px var(--green); animation: orbit-particle 6s linear infinite; animation-delay: 4s; z-index: 3;"></div>
+      
+      <!-- TEXTO/ÍCONO CENTRAL -->
+      <span style="position: absolute; font-size: 1.8rem; z-index: 4; animation: pulse-scale 2s ease-in-out infinite;">⚙️</span>
+    </div>
+  </div>
+
+  <!-- MODAL -->
+  <div class="modal" id="modal">
+    <div class="modal-box" style="max-width: 700px; max-height: 85vh; overflow-y: auto;">
+      <button class="modal-close" id="modalClose" onclick="closeProfile()">✕</button>
+      
+      <!-- ENCABEZADO -->
+      <div style="text-align: center; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 2px solid var(--border);">
+        <h2 style="color: white; font-family: 'Orbitron', monospace; font-size: 1.8rem; margin: 0;">⬡ TU PERFIL</h2>
+        <p style="color: var(--text-dim); font-size: 0.85rem; margin-top: 0.5rem; letter-spacing: 1px;">PERSONALIZA TU EXPERIENCIA EN NEXUS</p>
+      </div>
+
+      <!-- SECCIÓN 1: INFORMACIÓN PERSONAL -->
+      <div style="margin-bottom: 2.5rem; padding: 1.5rem; background: rgba(0, 245, 255, 0.05); border: 1px solid rgba(0, 245, 255, 0.2); border-radius: 4px;">
+        <h3 style="color: var(--cyan); font-family: 'Orbitron', monospace; font-size: 1.1rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">👤 INFORMACIÓN PERSONAL</h3>
+        
+        <div style="margin-bottom: 1rem;">
+          <label style="color: var(--text-dim); font-size: 0.75rem; display: block; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px;">Avatar (Emoji)</label>
+          <input type="text" id="profileAvatar" placeholder="⬡" maxlength="2" style="text-align: center; font-size: 1.5rem; padding: 12px; background: var(--bg); border: 1px solid var(--border); color: var(--cyan); border-radius: 4px; width: 100%;">
+        </div>
+
+        <div style="margin-bottom: 1rem;">
+          <label style="color: var(--text-dim); font-size: 0.75rem; display: block; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px;">Nombre</label>
+          <input type="text" id="profileName" placeholder="Tu nombre de usuario" style="padding: 12px; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 4px; width: 100%;">
+        </div>
+
+        <div style="margin-bottom: 1rem;">
+          <label style="color: var(--text-dim); font-size: 0.75rem; display: block; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px;">Email</label>
+          <input type="email" id="profileEmail" placeholder="tu@email.com" style="padding: 12px; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 4px; width: 100%;">
+        </div>
+
+        <div>
+          <label style="color: var(--text-dim); font-size: 0.75rem; display: block; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px;">Bio / Descripción</label>
+          <textarea id="profileBio" placeholder="Cuéntanos sobre ti..." style="padding: 12px; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 4px; width: 100%; height: 80px; resize: none; font-family: 'Rajdhani', sans-serif;"></textarea>
+        </div>
+      </div>
+
+      <!-- SECCIÓN 2: ESTADÍSTICAS -->
+      <div style="margin-bottom: 2.5rem;">
+        <h3 style="color: var(--cyan); font-family: 'Orbitron', monospace; font-size: 1.1rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">📊 ESTADÍSTICAS</h3>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+          <div style="background: rgba(0, 245, 255, 0.1); border: 2px solid rgba(0, 245, 255, 0.3); padding: 1.5rem; border-radius: 4px; text-align: center;">
+            <p style="color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem;">Nivel</p>
+            <p style="color: var(--cyan); font-family: 'Orbitron', monospace; font-size: 2rem; font-weight: bold; margin: 0;" id="level">1</p>
+          </div>
+          
+          <div style="background: rgba(0, 245, 255, 0.1); border: 2px solid rgba(0, 245, 255, 0.3); padding: 1.5rem; border-radius: 4px; text-align: center;">
+            <p style="color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem;">XP Total</p>
+            <p style="color: var(--cyan); font-family: 'Orbitron', monospace; font-size: 2rem; font-weight: bold; margin: 0;" id="xp">0</p>
+          </div>
+          
+          <div style="background: rgba(0, 245, 255, 0.1); border: 2px solid rgba(0, 245, 255, 0.3); padding: 1.5rem; border-radius: 4px; text-align: center;">
+            <p style="color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem;">Racha</p>
+            <p style="color: var(--cyan); font-family: 'Orbitron', monospace; font-size: 2rem; font-weight: bold; margin: 0;" id="streak">0</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECCIÓN 3: TEMAS DE COLOR -->
+      <div style="margin-bottom: 2.5rem; padding: 1.5rem; background: rgba(189, 0, 255, 0.05); border: 1px solid rgba(189, 0, 255, 0.2); border-radius: 4px;">
+        <h3 style="color: var(--violet); font-family: 'Orbitron', monospace; font-size: 1.1rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">🎨 TEMAS DE COLOR</h3>
+        
+        <p style="color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1rem;">TEMAS RÁPIDOS:</p>
+        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.8rem; margin-bottom: 2rem;">
+          <button data-theme="cyan" style="margin: 0; padding: 12px; background: linear-gradient(135deg, #00f5ff, #0088ff); border: 2px solid #00f5ff; color: white; border-radius: 4px; cursor: pointer; font-size: 0.7rem; text-transform: uppercase; font-weight: bold; transition: all 0.3s;">CYAN</button>
+          <button data-theme="purple" style="margin: 0; padding: 12px; background: linear-gradient(135deg, #bd00ff, #ff006e); border: 2px solid #bd00ff; color: white; border-radius: 4px; cursor: pointer; font-size: 0.7rem; text-transform: uppercase; font-weight: bold; transition: all 0.3s;">PURPLE</button>
+          <button data-theme="green" style="margin: 0; padding: 12px; background: linear-gradient(135deg, #00ff41, #00f5ff); border: 2px solid #00ff41; color: white; border-radius: 4px; cursor: pointer; font-size: 0.7rem; text-transform: uppercase; font-weight: bold; transition: all 0.3s;">GREEN</button>
+          <button data-theme="pink" style="margin: 0; padding: 12px; background: linear-gradient(135deg, #ff006e, #bd00ff); border: 2px solid #ff006e; color: white; border-radius: 4px; cursor: pointer; font-size: 0.7rem; text-transform: uppercase; font-weight: bold; transition: all 0.3s;">PINK</button>
+          <button data-theme="orange" style="margin: 0; padding: 12px; background: linear-gradient(135deg, #ffaa00, #ff006e); border: 2px solid #ffaa00; color: white; border-radius: 4px; cursor: pointer; font-size: 0.7rem; text-transform: uppercase; font-weight: bold; transition: all 0.3s;">ORANGE</button>
+        </div>
+
+        <p style="color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1rem;">COLORES PERSONALIZADOS:</p>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+          <div>
+            <label style="color: var(--text-dim); font-size: 0.7rem; display: block; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px;">Primario</label>
+            <input type="color" id="primaryColorInput" style="width: 100%; height: 50px; border: 2px solid var(--border); cursor: pointer; border-radius: 4px;">
+          </div>
+          <div>
+            <label style="color: var(--text-dim); font-size: 0.7rem; display: block; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px;">Secundario</label>
+            <input type="color" id="secondaryColorInput" style="width: 100%; height: 50px; border: 2px solid var(--border); cursor: pointer; border-radius: 4px;">
+          </div>
+          <div>
+            <label style="color: var(--text-dim); font-size: 0.7rem; display: block; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px;">Acentuado</label>
+            <input type="color" id="accentColorInput" style="width: 100%; height: 50px; border: 2px solid var(--border); cursor: pointer; border-radius: 4px;">
+          </div>
+        </div>
+      </div>
+
+      <!-- SECCIÓN 4.5: CUENTAS VINCULADAS -->
+      <div style="margin-bottom: 2.5rem; padding: 1.5rem; background: rgba(189, 0, 255, 0.05); border: 1px solid rgba(189, 0, 255, 0.2); border-radius: 4px;">
+        <h3 style="color: var(--violet); font-family: 'Orbitron', monospace; font-size: 1.1rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">🔗 CUENTAS VINCULADAS</h3>
+        
+        <div id="linkedAccountsContainer" style="margin-bottom: 1.5rem;">
+          <!-- Se llena dinámicamente -->
+        </div>
+
+        <p style="color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1rem;">VINCULAR NUEVAS CUENTAS:</p>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem;">
+          <button onclick="appState.linkSocialAccount('google')" style="margin: 0; padding: 8px; background: transparent; border: 1px solid rgba(66, 133, 244, 0.3); color: #4285f4; border-radius: 4px; cursor: pointer; font-size: 0.7rem; text-transform: uppercase; font-weight: bold;">🔵 Google</button>
+          <button onclick="appState.linkSocialAccount('github')" style="margin: 0; padding: 8px; background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); color: white; border-radius: 4px; cursor: pointer; font-size: 0.7rem; text-transform: uppercase; font-weight: bold;">⚫ GitHub</button>
+          <button onclick="appState.linkSocialAccount('facebook')" style="margin: 0; padding: 8px; background: transparent; border: 1px solid rgba(59, 89, 152, 0.3); color: #3b5998; border-radius: 4px; cursor: pointer; font-size: 0.7rem; text-transform: uppercase; font-weight: bold;">📘 FB</button>
+          <button onclick="appState.linkSocialAccount('discord')" style="margin: 0; padding: 8px; background: transparent; border: 1px solid rgba(88, 101, 242, 0.3); color: #5865f2; border-radius: 4px; cursor: pointer; font-size: 0.7rem; text-transform: uppercase; font-weight: bold;">🎮 Discord</button>
+          <button onclick="appState.linkSocialAccount('microsoft')" style="margin: 0; padding: 8px; background: transparent; border: 1px solid rgba(0, 120, 215, 0.3); color: #0078d4; border-radius: 4px; cursor: pointer; font-size: 0.7rem; text-transform: uppercase; font-weight: bold;">🪟 MS</button>
+          <button onclick="appState.linkSocialAccount('apple')" style="margin: 0; padding: 8px; background: transparent; border: 1px solid rgba(200, 200, 200, 0.3); color: #aaa; border-radius: 4px; cursor: pointer; font-size: 0.7rem; text-transform: uppercase; font-weight: bold;">🍎 Apple</button>
+        </div>
+      </div>
+      <div style="margin-bottom: 2rem; padding: 1.5rem; background: rgba(0, 255, 65, 0.05); border: 1px solid rgba(0, 255, 65, 0.2); border-radius: 4px;">
+        <h3 style="color: var(--green); font-family: 'Orbitron', monospace; font-size: 1.1rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">⚙️ CONFIGURACIÓN</h3>
+        
+        <div class="toggle-switch" style="margin-bottom: 1rem;">
+          <span style="color: var(--text); font-size: 0.9rem;">🔔 Notificaciones</span>
+          <label class="switch">
+            <input type="checkbox" id="notificationsToggle" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-switch" style="margin-bottom: 1rem;">
+          <span style="color: var(--text); font-size: 0.9rem;">🔊 Sonidos</span>
+          <label class="switch">
+            <input type="checkbox" id="soundToggle" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-switch" style="margin-bottom: 1rem;">
+          <span style="color: var(--text); font-size: 0.9rem;">🌙 Tema Oscuro</span>
+          <label class="switch">
+            <input type="checkbox" id="darkModeToggle" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div>
+          <label style="color: var(--text-dim); font-size: 0.75rem; display: block; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px;">🌐 Idioma</label>
+          <select id="languageSelect" style="width: 100%; padding: 12px; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 4px; font-family: 'Rajdhani', sans-serif;">
+            <option value="es">🇪🇸 Español</option>
+            <option value="en">🇬🇧 English</option>
+            <option value="fr">🇫🇷 Français</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- BOTONES DE ACCIÓN -->
+      <div class="modal-buttons" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <button id="saveBtn" onclick="save()" style="margin: 0; padding: 15px; background: transparent; border: 2px solid var(--cyan); color: var(--cyan); border-radius: 4px; font-weight: bold; cursor: pointer; font-family: 'Share Tech Mono', monospace; text-transform: uppercase; transition: all 0.3s;">💾 GUARDAR</button>
+        <button id="resetBtn" onclick="reset()" style="margin: 0; padding: 15px; background: transparent; border: 2px solid var(--magenta); color: var(--magenta); border-radius: 4px; font-weight: bold; cursor: pointer; font-family: 'Share Tech Mono', monospace; text-transform: uppercase; transition: all 0.3s;">🔄 RESET</button>
+      </div>
+
+      <!-- BOTÓN LOGOUT -->
+      <button onclick="appState.logoutUser()" style="width: 100%; margin-top: 1rem; padding: 12px; background: transparent; border: 2px solid rgba(255, 100, 100, 0.5); color: rgba(255, 100, 100, 0.8); border-radius: 4px; font-weight: bold; cursor: pointer; font-family: 'Share Tech Mono', monospace; text-transform: uppercase; transition: all 0.3s; font-size: 0.75rem;">👋 CERRAR SESIÓN</button>
+    </div>
+  </div>
+
+  <!-- NOTIFICATION -->
+  <div class="notification" id="notif"></div>
+
+  <!-- MAIN -->
+  <main>
+    <!-- HERO -->
+    <section id="hero" class="section">
+      <div class="hero">
+        <h1 class="hero-title"><span>NEX</span>US</h1>
+        <p style="font-size: 1.1rem; color: var(--text-dim); max-width: 700px;">Plataforma educativa con recursos reales y sistema de perfiles</p>
+        <div class="nav-grid" style="margin-top: 3rem;">
+          <div class="nav-card" onclick="show('ia')">
+            <div class="nav-icon">🤖</div>
+            <div class="nav-title">IA ASISTENTE</div>
+            <div class="nav-desc">Chat inteligente</div>
+          </div>
+          <div class="nav-card" onclick="show('recursos')">
+            <div class="nav-icon">📚</div>
+            <div class="nav-title">RECURSOS</div>
+            <div class="nav-desc">10 plataformas</div>
+          </div>
+          <div class="nav-card" onclick="show('quizzes')">
+            <div class="nav-icon">❓</div>
+            <div class="nav-title">QUIZZES</div>
+            <div class="nav-desc">Pruebas</div>
+          </div>
+          <div class="nav-card" onclick="show('labs')">
+            <div class="nav-icon">⚡</div>
+            <div class="nav-title">LABS</div>
+            <div class="nav-desc">Editor código</div>
+          </div>
+          <div class="nav-card" onclick="show('logros')">
+            <div class="nav-icon">🏆</div>
+            <div class="nav-title">LOGROS</div>
+            <div class="nav-desc">Tu progreso</div>
+          </div>
+          <div class="nav-card" onclick="show('tecnologias')">
+            <div class="nav-icon">⚛️</div>
+            <div class="nav-title">TECNOLOGÍAS</div>
+            <div class="nav-desc">Stack utilizado</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN TECNOLOGÍAS CON ANIMACIÓN UIVERSE -->
+    <section id="tecnologias" class="section hidden">
+      <h2 style="font-family: 'Orbitron', monospace; font-size: 2.5rem; color: white; margin-bottom: 1rem;">
+        <span style="color: var(--cyan);">CONSTRUIDO CON</span>
+      </h2>
+      <p style="color: var(--text-dim); margin-bottom: 3rem; font-size: 1rem;">Las mejores tecnologías web modernas</p>
+      
+      <div style="max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;">
+        <!-- ANIMACIÓN UIVERSE -->
+        <div style="display: flex; justify-content: center;">
+          <div class="orb-wrapper" style="position: relative; width: 250px; height: 250px; display: flex; align-items: center; justify-content: center;">
+            <div class="orb" style="width: 150px; height: 150px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, rgba(0, 245, 255, 0.4), rgba(189, 0, 255, 0.2)); box-shadow: 0 0 50px rgba(0, 245, 255, 0.5), inset 0 0 50px rgba(189, 0, 255, 0.3); animation: orb-rotate 8s linear infinite; position: relative;">
+              <div style="position: absolute; width: 100%; height: 100%; border-radius: 50%; border: 2px solid transparent; border-top: 2px solid var(--cyan); border-right: 2px solid var(--magenta); animation: orb-rotate 4s linear infinite reverse;"></div>
+            </div>
+            <div style="position: absolute; width: 8px; height: 8px; background: var(--cyan); border-radius: 50%; box-shadow: 0 0 10px var(--cyan); animation: particle-float 3s ease-out infinite; top: 20%; left: 50%;"></div>
+            <div style="position: absolute; width: 8px; height: 8px; background: var(--cyan); border-radius: 50%; box-shadow: 0 0 10px var(--cyan); animation: particle-float 3s ease-out infinite; animation-delay: 0.5s; top: 50%; left: 10%;"></div>
+            <div style="position: absolute; width: 8px; height: 8px; background: var(--cyan); border-radius: 50%; box-shadow: 0 0 10px var(--cyan); animation: particle-float 3s ease-out infinite; animation-delay: 1s; top: 70%; left: 80%;"></div>
+            <div style="position: absolute; width: 8px; height: 8px; background: var(--cyan); border-radius: 50%; box-shadow: 0 0 10px var(--cyan); animation: particle-float 3s ease-out infinite; animation-delay: 1.5s; top: 30%; right: 15%;"></div>
+            <div style="position: absolute; bottom: -30px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px;">
+              <div style="width: 6px; height: 60px; background: linear-gradient(to top, var(--violet), transparent); border-radius: 50%; animation: waveAnimation 1.2s ease-in-out infinite;"></div>
+              <div style="width: 6px; height: 60px; background: linear-gradient(to top, var(--violet), transparent); border-radius: 50%; animation: waveAnimation 1.2s ease-in-out infinite; animation-delay: 0.2s;"></div>
+              <div style="width: 6px; height: 60px; background: linear-gradient(to top, var(--violet), transparent); border-radius: 50%; animation: waveAnimation 1.2s ease-in-out infinite; animation-delay: 0.4s;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- LISTA DE TECNOLOGÍAS -->
+        <div style="text-align: left;">
+          <div style="background: var(--panel); border: 1px solid var(--border); padding: 2rem; border-radius: 4px; margin-bottom: 1.5rem;">
+            <h3 style="color: var(--cyan); font-family: 'Orbitron', monospace; margin-bottom: 1.5rem; font-size: 1.2rem;">⚛️ Frontend</h3>
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+              <div style="display: flex; align-items: center; gap: 1rem;">
+                <span style="font-size: 2rem;">📄</span>
+                <div>
+                  <p style="color: var(--cyan); font-weight: bold; margin-bottom: 0.25rem;">HTML5</p>
+                  <p style="color: var(--text-dim); font-size: 0.85rem;">Estructura semántica y accesible</p>
+                </div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 1rem;">
+                <span style="font-size: 2rem;">🎨</span>
+                <div>
+                  <p style="color: var(--cyan); font-weight: bold; margin-bottom: 0.25rem;">CSS3</p>
+                  <p style="color: var(--text-dim); font-size: 0.85rem;">Animaciones y diseño responsivo</p>
+                </div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 1rem;">
+                <span style="font-size: 2rem;">⚙️</span>
+                <div>
+                  <p style="color: var(--cyan); font-weight: bold; margin-bottom: 0.25rem;">JavaScript</p>
+                  <p style="color: var(--text-dim); font-size: 0.85rem;">Lógica interactiva y dinámica</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="background: var(--panel); border: 1px solid var(--border); padding: 2rem; border-radius: 4px;">
+            <h3 style="color: var(--cyan); font-family: 'Orbitron', monospace; margin-bottom: 1.5rem; font-size: 1.2rem;">💾 Storage</h3>
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+              <div style="display: flex; align-items: center; gap: 1rem;">
+                <span style="font-size: 2rem;">🌐</span>
+                <div>
+                  <p style="color: var(--cyan); font-weight: bold; margin-bottom: 0.25rem;">Web APIs</p>
+                  <p style="color: var(--text-dim); font-size: 0.85rem;">APIs modernas del navegador</p>
+                </div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 1rem;">
+                <span style="font-size: 2rem;">💾</span>
+                <div>
+                  <p style="color: var(--cyan); font-weight: bold; margin-bottom: 0.25rem;">LocalStorage</p>
+                  <p style="color: var(--text-dim); font-size: 0.85rem;">Persistencia de datos del usuario</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-back" onclick="appState.show('hero')" style="margin-top: 3rem; display: inline-block; width: auto;">← VOLVER</button>
+    </section>
+
+    <!-- IA SECTION -->
+    <section id="ia" class="section hidden">
+      <button class="btn-back" onclick="show('hero')">← VOLVER</button>
+      <h2 style="font-family: 'Orbitron', monospace; font-size: 2.5rem; margin-bottom: 0.5rem; text-align: center;"><span style="color: var(--cyan);">IA</span> ASISTENTE INTELIGENTE</h2>
+      <p style="text-align: center; color: var(--text-dim); margin-bottom: 2rem; font-size: 0.9rem;">Tu compañero de aprendizaje con IA</p>
+      
+      <div class="container" style="grid-template-columns: 2fr 1fr;">
+        <!-- IA CHAT MEJORADO -->
+        <div class="box" style="display: flex; flex-direction: column;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h2>🤖 Chat Inteligente</h2>
+            <span style="font-size: 0.75rem; color: var(--green); background: rgba(0, 255, 65, 0.1); padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(0, 255, 65, 0.3);">● EN LÍNEA</span>
+          </div>
+          
+          <div class="messages-box" id="msgs" style="flex: 1; margin-bottom: 1rem; background: rgba(0, 0, 0, 0.3);">
+            <div style="padding: 15px; background: rgba(0, 245, 255, 0.05); border-left: 3px solid var(--cyan); border-radius: 4px; margin-bottom: 10px;">
+              <p style="font-size: 0.85rem; color: var(--text-dim); margin: 0;">🤖 Asistente</p>
+              <p style="color: white; margin-top: 5px;">¡Hola! Soy tu asistente de IA. Puedo ayudarte con:</p>
+              <ul style="margin-top: 8px; padding-left: 20px; color: var(--text-dim); font-size: 0.85rem;">
+                <li>Explicar conceptos de programación</li>
+                <li>Ayudarte con problemas de código</li>
+                <li>Sugerir recursos educativos</li>
+                <li>Resolver dudas técnicas</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div style="margin-bottom: 1rem;">
+            <textarea id="input" placeholder="Haz tu pregunta... (Shift+Enter para nueva línea)" onkeydown="if(event.key==='Enter' && !event.shiftKey) { event.preventDefault(); send(); }" style="margin-bottom: 8px;"></textarea>
+            <button onclick="send()" style="margin: 0; margin-bottom: 8px;">💬 ENVIAR MENSAJE</button>
+          </div>
+
+          <!-- ACCIONES RÁPIDAS -->
+          <div style="border-top: 1px solid var(--border); padding-top: 1rem;">
+            <p style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.8rem;">⚡ ACCIONES RÁPIDAS:</p>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+              <button onclick="appState.addQuickQuestion('¿Cómo empezar con JavaScript?')" style="margin: 0; padding: 10px; font-size: 0.75rem; background: transparent; border: 1px solid rgba(0, 245, 255, 0.3); color: var(--cyan); border-radius: 4px;">📚 JavaScript</button>
+              <button onclick="appState.addQuickQuestion('¿Qué es React?')" style="margin: 0; padding: 10px; font-size: 0.75rem; background: transparent; border: 1px solid rgba(0, 245, 255, 0.3); color: var(--cyan); border-radius: 4px;">⚛️ React</button>
+              <button onclick="appState.addQuickQuestion('¿Cómo hacer un servidor con Node.js?')" style="margin: 0; padding: 10px; font-size: 0.75rem; background: transparent; border: 1px solid rgba(0, 245, 255, 0.3); color: var(--cyan); border-radius: 4px;">🟢 Node.js</button>
+              <button onclick="appState.addQuickQuestion('¿Qué es Python?')" style="margin: 0; padding: 10px; font-size: 0.75rem; background: transparent; border: 1px solid rgba(0, 245, 255, 0.3); color: var(--cyan); border-radius: 4px;">🐍 Python</button>
+              <button onclick="appState.addQuickQuestion('¿Cómo empezar con Java?')" style="margin: 0; padding: 10px; font-size: 0.75rem; background: transparent; border: 1px solid rgba(0, 245, 255, 0.3); color: var(--cyan); border-radius: 4px;">☕ Java</button>
+              <button onclick="appState.addQuickQuestion('¿Qué es C# y .NET?')" style="margin: 0; padding: 10px; font-size: 0.75rem; background: transparent; border: 1px solid rgba(0, 245, 255, 0.3); color: var(--cyan); border-radius: 4px;">🔷 C#</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- PANEL LATERAL -->
+        <div class="box" style="flex-direction: column;">
+          <h2 style="text-align: center; margin-bottom: 1.5rem;">📊 INFORMACIÓN</h2>
+          
+          <!-- STATS -->
+          <div style="background: rgba(0, 245, 255, 0.1); padding: 1rem; border-radius: 4px; margin-bottom: 1rem; text-align: center;">
+            <p style="color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase; margin-bottom: 0.5rem;">Preguntas Hoy</p>
+            <p style="color: var(--cyan); font-family: 'Orbitron', monospace; font-size: 1.8rem; font-weight: bold; margin: 0;" id="questionsCount">0</p>
+          </div>
+
+          <div style="background: rgba(0, 255, 65, 0.1); padding: 1rem; border-radius: 4px; margin-bottom: 1rem; text-align: center;">
+            <p style="color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase; margin-bottom: 0.5rem;">Respuestas Útiles</p>
+            <p style="color: var(--green); font-family: 'Orbitron', monospace; font-size: 1.8rem; font-weight: bold; margin: 0;" id="usefulCount">0</p>
+          </div>
+
+          <!-- TEMAS DISPONIBLES -->
+          <div style="border-top: 1px solid var(--border); padding-top: 1rem;">
+            <p style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1rem;">📚 TEMAS:</p>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <span style="background: rgba(0, 245, 255, 0.1); padding: 8px 12px; border-radius: 4px; font-size: 0.8rem; color: var(--cyan); border-left: 3px solid var(--cyan);">📄 HTML5 & Semántica</span>
+              <span style="background: rgba(0, 245, 255, 0.1); padding: 8px 12px; border-radius: 4px; font-size: 0.8rem; color: var(--cyan); border-left: 3px solid var(--cyan);">🎨 CSS3 & Diseño</span>
+              <span style="background: rgba(0, 245, 255, 0.1); padding: 8px 12px; border-radius: 4px; font-size: 0.8rem; color: var(--cyan); border-left: 3px solid var(--cyan);">⚙️ JavaScript & DOM</span>
+              <span style="background: rgba(0, 245, 255, 0.1); padding: 8px 12px; border-radius: 4px; font-size: 0.8rem; color: var(--cyan); border-left: 3px solid var(--cyan);">📘 TypeScript</span>
+              <span style="background: rgba(0, 245, 255, 0.1); padding: 8px 12px; border-radius: 4px; font-size: 0.8rem; color: var(--cyan); border-left: 3px solid var(--cyan);">⚛️ React & Hooks</span>
+              <span style="background: rgba(0, 245, 255, 0.1); padding: 8px 12px; border-radius: 4px; font-size: 0.8rem; color: var(--cyan); border-left: 3px solid var(--cyan);">🟢 Node.js & Backend</span>
+              <span style="background: rgba(0, 245, 255, 0.1); padding: 8px 12px; border-radius: 4px; font-size: 0.8rem; color: var(--cyan); border-left: 3px solid var(--cyan);">🐘 PHP & Laravel</span>
+              <span style="background: rgba(0, 245, 255, 0.1); padding: 8px 12px; border-radius: 4px; font-size: 0.8rem; color: var(--cyan); border-left: 3px solid var(--cyan);">🐍 Python & Django</span>
+              <span style="background: rgba(0, 245, 255, 0.1); padding: 8px 12px; border-radius: 4px; font-size: 0.8rem; color: var(--cyan); border-left: 3px solid var(--cyan);">☕ Java & Spring</span>
+              <span style="background: rgba(0, 245, 255, 0.1); padding: 8px 12px; border-radius: 4px; font-size: 0.8rem; color: var(--cyan); border-left: 3px solid var(--cyan);">🔷 C# & .NET</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- OTRAS SECCIONES -->
+    <section id="recursos" class="section hidden">
+      <button class="btn-back" onclick="show('hero')">← VOLVER</button>
+      <h2 style="font-family: 'Orbitron', monospace; font-size: 2.5rem; text-align: center; color: white;">RECURSOS EDUCATIVOS</h2>
+      <p style="text-align: center; color: var(--text-dim); margin-top: 1rem; margin-bottom: 2rem;">Aprende con los mejores recursos clasificados por lenguaje</p>
+      
+      <!-- TABS DE LENGUAJES -->
+      <div style="max-width: 1200px; margin: 0 auto;">
+        <div style="display: flex; gap: 0.5rem; margin-bottom: 2rem; flex-wrap: wrap; justify-content: center;">
+          <button onclick="appState.showResourceTab('html')" class="resource-tab" style="padding: 10px 18px; background: transparent; border: 2px solid rgba(0, 245, 255, 0.3); color: var(--cyan); border-radius: 4px; cursor: pointer; font-family: 'Share Tech Mono', monospace; text-transform: uppercase; transition: all 0.3s; font-weight: bold; font-size: 0.75rem;">📄 HTML</button>
+          <button onclick="appState.showResourceTab('css')" class="resource-tab" style="padding: 10px 18px; background: transparent; border: 2px solid rgba(0, 245, 255, 0.3); color: var(--cyan); border-radius: 4px; cursor: pointer; font-family: 'Share Tech Mono', monospace; text-transform: uppercase; transition: all 0.3s; font-weight: bold; font-size: 0.75rem;">🎨 CSS</button>
+          <button onclick="appState.showResourceTab('js')" class="resource-tab" style="padding: 10px 18px; background: transparent; border: 2px solid rgba(0, 245, 255, 0.3); color: var(--cyan); border-radius: 4px; cursor: pointer; font-family: 'Share Tech Mono', monospace; text-transform: uppercase; transition: all 0.3s; font-weight: bold; font-size: 0.75rem;">⚙️ JS</button>
+          <button onclick="appState.showResourceTab('ts')" class="resource-tab" style="padding: 10px 18px; background: transparent; border: 2px solid rgba(0, 245, 255, 0.3); color: var(--cyan); border-radius: 4px; cursor: pointer; font-family: 'Share Tech Mono', monospace; text-transform: uppercase; transition: all 0.3s; font-weight: bold; font-size: 0.75rem;">📘 TS</button>
+          <button onclick="appState.showResourceTab('react')" class="resource-tab" style="padding: 10px 18px; background: transparent; border: 2px solid rgba(0, 245, 255, 0.3); color: var(--cyan); border-radius: 4px; cursor: pointer; font-family: 'Share Tech Mono', monospace; text-transform: uppercase; transition: all 0.3s; font-weight: bold; font-size: 0.75rem;">⚛️ REACT</button>
+          <button onclick="appState.showResourceTab('nodejs')" class="resource-tab" style="padding: 10px 18px; background: transparent; border: 2px solid rgba(0, 245, 255, 0.3); color: var(--cyan); border-radius: 4px; cursor: pointer; font-family: 'Share Tech Mono', monospace; text-transform: uppercase; transition: all 0.3s; font-weight: bold; font-size: 0.75rem;">🟢 NODE</button>
+          <button onclick="appState.showResourceTab('php')" class="resource-tab" style="padding: 10px 18px; background: transparent; border: 2px solid rgba(0, 245, 255, 0.3); color: var(--cyan); border-radius: 4px; cursor: pointer; font-family: 'Share Tech Mono', monospace; text-transform: uppercase; transition: all 0.3s; font-weight: bold; font-size: 0.75rem;">🐘 PHP</button>
+          <button onclick="appState.showResourceTab('python')" class="resource-tab" style="padding: 10px 18px; background: transparent; border: 2px solid rgba(0, 245, 255, 0.3); color: var(--cyan); border-radius: 4px; cursor: pointer; font-family: 'Share Tech Mono', monospace; text-transform: uppercase; transition: all 0.3s; font-weight: bold; font-size: 0.75rem;">🐍 PYTHON</button>
+          <button onclick="appState.showResourceTab('java')" class="resource-tab" style="padding: 10px 18px; background: transparent; border: 2px solid rgba(0, 245, 255, 0.3); color: var(--cyan); border-radius: 4px; cursor: pointer; font-family: 'Share Tech Mono', monospace; text-transform: uppercase; transition: all 0.3s; font-weight: bold; font-size: 0.75rem;">☕ JAVA</button>
+          <button onclick="appState.showResourceTab('csharp')" class="resource-tab" style="padding: 10px 18px; background: transparent; border: 2px solid rgba(0, 245, 255, 0.3); color: var(--cyan); border-radius: 4px; cursor: pointer; font-family: 'Share Tech Mono', monospace; text-transform: uppercase; transition: all 0.3s; font-weight: bold; font-size: 0.75rem;">🔷 C#</button>
+        </div>
+
+        <!-- CONTENIDO DE RECURSOS -->
+        <div id="resourcesContent" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
+          <!-- Se llena dinámicamente -->
+        </div>
+      </div>
+    </section>
+
+    <section id="quizzes" class="section hidden">
+      <button class="btn-back" onclick="show('hero')">← VOLVER</button>
+      <h2 style="font-family: 'Orbitron', monospace; font-size: 2.5rem; text-align: center; color: white;">QUIZZES INTERACTIVOS</h2>
+      <p style="text-align: center; color: var(--text-dim); margin-top: 1rem; margin-bottom: 2rem;">Prueba tus conocimientos en diferentes lenguajes</p>
+      
+      <!-- TABS DE LENGUAJES PARA QUIZZES -->
+      <div style="max-width: 1200px; margin: 0 auto;">
+        <div style="display: flex; gap: 0.5rem; margin-bottom: 2rem; flex-wrap: wrap; justify-content: center;">
+          <button onclick="appState.showQuizTab('html')" class="quiz-tab" style="padding: 10px 18px; background: transparent; border: 2px solid rgba(0, 245, 255, 0.3); color: var(--cyan); border-radius: 4px; cursor: pointer; font-family: 'Share Tech Mono', monospace; text-transform: uppercase; transition: all 0.3s; font-weight: bold; font-size: 0.75rem;">📄 HTML</button>
+          <button onclick="appState.showQuizTab('css')" class="quiz-tab" style="padding: 10px 18px; background: transparent; border: 2px solid rgba(0, 245, 255, 0.3); color: var(--cyan); border-radius: 4px; cursor: pointer; font-family: 'Share Tech Mono', monospace; text-transform: uppercase; transition: all 0.3s; font-weight: bold; font-size: 0.75rem;">🎨 CSS</button>
+          <button onclick="appState.showQuizTab('js')" class="quiz-tab" style="padding: 10px 18px; background: transparent; border: 2px solid rgba(0, 245, 255, 0.3); color: var(--cyan); border-radius: 4px; cursor: pointer; font-family: 'Share Tech Mono', monospace; text-transform: uppercase; transition: all 0.3s; font-weight: bold; font-size: 0.75rem;">⚙️ JS</button>
+          <button onclick="appState.showQuizTab('ts')" class="quiz-tab" style="padding: 10px 18px; background: transparent; border: 2px solid rgba(0, 245, 255, 0.3); color: var(--cyan); border-radius: 4px; cursor: pointer; font-family: 'Share Tech Mono', monospace; text-transform: uppercase; transition: all 0.3s; font-weight: bold; font-size: 0.75rem;">📘 TS</button>
+          <button onclick="appState.showQuizTab('react')" class="quiz-tab" style="padding: 10px 18px; background: transparent; border: 2px solid rgba(0, 245, 255, 0.3); color: var(--cyan); border-radius: 4px; cursor: pointer; font-family: 'Share Tech Mono', monospace; text-transform: uppercase; transition: all 0.3s; font-weight: bold; font-size: 0.75rem;">⚛️ REACT</button>
+          <button onclick="appState.showQuizTab('nodejs')" class="quiz-tab" style="padding: 10px 18px; background: transparent; border: 2px solid rgba(0, 245, 255, 0.3); color: var(--cyan); border-radius: 4px; cursor: pointer; font-family: 'Share Tech Mono', monospace; text-transform: uppercase; transition: all 0.3s; font-weight: bold; font-size: 0.75rem;">🟢 NODE</button>
+          <button onclick="appState.showQuizTab('php')" class="quiz-tab" style="padding: 10px 18px; background: transparent; border: 2px solid rgba(0, 245, 255, 0.3); color: var(--cyan); border-radius: 4px; cursor: pointer; font-family: 'Share Tech Mono', monospace; text-transform: uppercase; transition: all 0.3s; font-weight: bold; font-size: 0.75rem;">🐘 PHP</button>
+          <button onclick="appState.showQuizTab('python')" class="quiz-tab" style="padding: 10px 18px; background: transparent; border: 2px solid rgba(0, 245, 255, 0.3); color: var(--cyan); border-radius: 4px; cursor: pointer; font-family: 'Share Tech Mono', monospace; text-transform: uppercase; transition: all 0.3s; font-weight: bold; font-size: 0.75rem;">🐍 PYTHON</button>
+          <button onclick="appState.showQuizTab('java')" class="quiz-tab" style="padding: 10px 18px; background: transparent; border: 2px solid rgba(0, 245, 255, 0.3); color: var(--cyan); border-radius: 4px; cursor: pointer; font-family: 'Share Tech Mono', monospace; text-transform: uppercase; transition: all 0.3s; font-weight: bold; font-size: 0.75rem;">☕ JAVA</button>
+          <button onclick="appState.showQuizTab('csharp')" class="quiz-tab" style="padding: 10px 18px; background: transparent; border: 2px solid rgba(0, 245, 255, 0.3); color: var(--cyan); border-radius: 4px; cursor: pointer; font-family: 'Share Tech Mono', monospace; text-transform: uppercase; transition: all 0.3s; font-weight: bold; font-size: 0.75rem;">🔷 C#</button>
+        </div>
+
+        <!-- CONTENIDO DE QUIZZES -->
+        <div id="quizzesContent" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
+          <!-- Se llena dinámicamente -->
+        </div>
+      </div>
+    </section>
+
+    <section id="labs" class="section hidden">
+      <button class="btn-back" onclick="show('hero')">← VOLVER</button>
+      <h2 style="font-family: 'Orbitron', monospace; font-size: 2.5rem; text-align: center; color: white;">LABS</h2>
+      <p style="text-align: center; color: var(--text-dim); margin-top: 2rem;">Editor de código en vivo</p>
+    </section>
+
+    <section id="logros" class="section hidden">
+      <button class="btn-back" onclick="show('hero')">← VOLVER</button>
+      <h2 style="font-family: 'Orbitron', monospace; font-size: 2.5rem; text-align: center; color: white;">LOGROS</h2>
+      <p style="text-align: center; color: var(--text-dim); margin-top: 2rem;">Tu progreso y estadísticas</p>
+    </section>
+  </main>
+
+  <script>
+    const STORAGE_KEY = 'nexus-data';
+    const SETTINGS_KEY = 'nexus-settings';
+    const XP_PER_MESSAGE = 10;
+    const XP_PER_LEVEL = 500;
+    const APP_VERSION = '7.0';
+    const APP_NAME = 'NEXUS';
+
+    // 🌍 DICCIONARIO DE TRADUCCIONES
+    const translations = {
+      es: {
+        // Navegación
+        inicio: 'INICIO',
+        ia: 'IA',
+        recursos: 'RECURSOS',
+        quizzes: 'QUIZZES',
+        labs: 'LABS',
+        logros: 'LOGROS',
+        
+        // Botones
+        volver: '← VOLVER',
+        ejecutar: '▶ EJECUTAR',
+        limpiar: '⌧ LIMPIAR',
+        guardar: 'GUARDAR',
+        cancelar: 'CANCELAR',
+        
+        // Secciones
+        chat: 'Chat Inteligente',
+        editor: '✏️ EDITOR',
+        preview: '👁️ VISTA PREVIA',
+        ejemplos: '⚡ EJEMPLOS AVANZADOS',
+        basicos: '📋 Básicos',
+        frameworks: '⚛️ Frameworks',
+        visualizacion: '📊 Visualización',
+        juegos: '🎮 3D & Juegos',
+        
+        // Acciones
+        pregunta: '¿En qué puedo ayudarte?',
+        escribeTuCodigo: 'Escribe tu código HTML/CSS/JS aquí...',
+        idioma: 'Idioma',
+        cambiarIdioma: 'Cambiar idioma',
+        espanol: 'Español',
+        ingles: 'English',
+        
+        // Mensajes
+        bienvenida: '¡Bienvenido a NEXUS!',
+        cargado: '💡 Ejemplo cargado: ',
+        ejecutado: '✅ Código ejecutado correctamente',
+        guardado: '✅ Código de Labs guardado',
+        cargadoDelServer: '✅ Código de Labs cargado',
+        limpiadoEditor: '🔄 Editor limpiado',
+        
+        // Perfil
+        miPerfil: '⬡ TU PERFIL',
+        personaliza: 'PERSONALIZA TU EXPERIENCIA EN NEXUS',
+        informacionPersonal: '👤 INFORMACIÓN PERSONAL',
+        avatar: 'Avatar (Emoji)',
+        nombre: 'Nombre',
+        bio: 'Biografía',
+        email: 'Email',
+        
+        // Estadísticas
+        totalXP: 'Total XP',
+        nivel: 'Nivel',
+        racha: 'Racha',
+        dias: 'días',
+      },
+      en: {
+        // Navigation
+        inicio: 'HOME',
+        ia: 'AI',
+        recursos: 'RESOURCES',
+        quizzes: 'QUIZZES',
+        labs: 'LABS',
+        logros: 'ACHIEVEMENTS',
+        
+        // Buttons
+        volver: '← BACK',
+        ejecutar: '▶ RUN',
+        limpiar: '⌧ CLEAR',
+        guardar: 'SAVE',
+        cancelar: 'CANCEL',
+        
+        // Sections
+        chat: 'Smart Chat',
+        editor: '✏️ EDITOR',
+        preview: '👁️ PREVIEW',
+        ejemplos: '⚡ ADVANCED EXAMPLES',
+        basicos: '📋 Basics',
+        frameworks: '⚛️ Frameworks',
+        visualizacion: '📊 Visualization',
+        juegos: '🎮 3D & Games',
+        
+        // Actions
+        pregunta: 'How can I help you?',
+        escribeTuCodigo: 'Write your HTML/CSS/JS code here...',
+        idioma: 'Language',
+        cambiarIdioma: 'Change language',
+        espanol: 'Español',
+        ingles: 'English',
+        
+        // Messages
+        bienvenida: 'Welcome to NEXUS!',
+        cargado: '💡 Example loaded: ',
+        ejecutado: '✅ Code executed successfully',
+        guardado: '✅ Labs code saved',
+        cargadoDelServer: '✅ Labs code loaded',
+        limpiadoEditor: '🔄 Editor cleared',
+        
+        // Profile
+        miPerfil: '⬡ YOUR PROFILE',
+        personaliza: 'CUSTOMIZE YOUR NEXUS EXPERIENCE',
+        informacionPersonal: '👤 PERSONAL INFORMATION',
+        avatar: 'Avatar (Emoji)',
+        nombre: 'Name',
+        bio: 'Biography',
+        email: 'Email',
+        
+        // Statistics
+        totalXP: 'Total XP',
+        nivel: 'Level',
+        racha: 'Streak',
+        dias: 'days',
+      }
+    };
+
+    // Función para obtener traducción
+    function t(key) {
+      const lang = appState.settings?.language || 'es';
+      return translations[lang]?.[key] || translations.es[key] || key;
+    }
+
+    const appState = {
+      // USUARIOS REGISTRADOS
+      users: {},
+
+      // USUARIO ACTUAL LOGEADO
+      currentUser: null,
+
+      data: {
+        xp: 0,
+        level: 1,
+        streak: 0,
+        lastActivity: Date.now(),
+        // PERFIL DE USUARIO
+        profile: {
+          name: 'Usuario Nexus',
+          email: 'usuario@nexus.dev',
+          bio: 'Aprendiendo a programar con NEXUS 🚀',
+          avatar: '⬡'
+        }
+      },
+
+      settings: {
+        notifications: true,
+        sound: true,
+        darkMode: true,
+        language: 'es',
+        // TEMAS DE COLOR
+        primaryColor: '#00f5ff', // cyan
+        secondaryColor: '#bd00ff', // violet
+        accentColor: '#00ff41' // green
+      },
+
+      // 🤖 SISTEMA DE IA INTELIGENTE
+      iaKnowledge: {
+        javascript: {
+          keywords: ['javascript', 'js', 'var', 'let', 'const', 'function'],
+          responses: [
+            {
+              pattern: /(empezar|comenzar|iniciar|aprender|principiante)/i,
+              response: "Para empezar con JavaScript, te recomiendo:\n\n1️⃣ Aprende los fundamentos: variables, tipos de datos, operadores\n2️⃣ Practica con estructuras de control: if/else, loops\n3️⃣ Domina funciones y scope\n4️⃣ Entender el DOM para manipular páginas web\n\n📚 Recursos gratuitos:\n• MDN Web Docs (documentación oficial)\n• JavaScript.info (tutorial completo)\n• FreeCodeCamp (práctica interactiva)\n\n¿Quieres que te explique algún tema específico?"
+            },
+            {
+              pattern: /(que es|definición|significa|concepto)/i,
+              response: "JavaScript es un lenguaje de programación interpretado que:\n\n✨ Se ejecuta en el navegador (cliente)\n✨ Permite crear páginas web interactivas\n✨ También funciona en servidores con Node.js\n✨ Es multiparadigma: orientado a objetos, funcional, imperativo\n\n💡 Dato curioso: Fue creado en solo 10 días por Brendan Eich en 1995"
+            },
+            {
+              pattern: /(variable|declarar)/i,
+              response: "En JavaScript puedes declarar variables de 3 formas:\n\nvar nombre = 'Juan';\nlet edad = 25;\nconst PI = 3.1416;\n\n✅ Usa CONST por defecto\n✅ Usa LET si necesitas reasignar\n❌ Evita VAR (está desactualizado)"
+            }
+          ],
+          defaultResponse: "JavaScript es super versátil. ¿Qué aspecto específico te interesa? Puedo hablarte de variables, funciones, objetos, async/await, o el DOM."
+        },
+        react: {
+          keywords: ['react', 'reactjs', 'componentes', 'hooks', 'jsx'],
+          responses: [
+            {
+              pattern: /(que es|definición)/i,
+              response: "React es una biblioteca de JavaScript para construir interfaces de usuario:\n\n⚛️ Creada por Facebook (2013)\n⚛️ Basada en componentes reutilizables\n⚛️ Usa un Virtual DOM para ser rápida\n⚛️ Puedes crear SPAs (Single Page Applications)\n\n¿Te interesa aprender sobre componentes, hooks o estado?"
+            },
+            {
+              pattern: /(hooks|useState|useEffect)/i,
+              response: "¡Los Hooks de React son increíbles! 🎣\n\n• useState: maneja estado en componentes funcionales\n• useEffect: para efectos secundarios (API, timers)\n• useContext: comparte datos sin prop drilling\n• useReducer: para estado complejo\n\nuseState es lo más básico y lo usarás constantemente."
+            }
+          ],
+          defaultResponse: "React es fascinante. ¿Quieres saber sobre componentes, hooks, estado, o el ciclo de vida?"
+        },
+        python: {
+          keywords: ['python', 'py', 'django', 'flask', 'pandas'],
+          responses: [
+            {
+              pattern: /(empezar|aprender|principiante)/i,
+              response: "🐍 Python es ideal para principiantes:\n\n1️⃣ Sintaxis limpia y legible\n2️⃣ Tipado dinámico\n3️⃣ Grandes bibliotecas estándar\n\nÁreas populares:\n• Web: Django, Flask\n• Data Science: Pandas, NumPy\n• IA: TensorFlow, PyTorch\n\n¿Por dónde quieres empezar?"
+            }
+          ],
+          defaultResponse: "Python es muy versátil. ¿Te interesa desarrollo web, data science, automatización, o IA?"
+        },
+        html: {
+          keywords: ['html', 'etiqueta', 'elemento', 'dom'],
+          responses: [
+            {
+              pattern: /(que es|definición)/i,
+              response: "HTML (HyperText Markup Language) es el lenguaje estándar para crear páginas web:\n\n📄 Define la estructura del contenido\n🔗 Usa etiquetas para marcar elementos\n🌐 Es interpretado por los navegadores"
+            }
+          ],
+          defaultResponse: "HTML es la base de toda web. ¿Qué etiqueta o concepto te gustaría explorar?"
+        },
+        css: {
+          keywords: ['css', 'estilo', 'diseño', 'flexbox', 'grid'],
+          responses: [
+            {
+              pattern: /(flexbox|flex)/i,
+              response: "Flexbox es un modelo de layout unidimensional:\n\ndisplay: flex;\njustify-content: center;\nalign-items: center;\ngap: 20px;"
+            }
+          ],
+          defaultResponse: "CSS da estilo a tus páginas. ¿Quieres aprender sobre selectores, flexbox, grid o animaciones?"
+        },
+        nodejs: {
+          keywords: ['node', 'nodejs', 'backend', 'servidor', 'npm'],
+          responses: [
+            {
+              pattern: /(servidor|server)/i,
+              response: "Crear un servidor básico con Node.js:\n\nconst http = require('http');\nconst server = http.createServer((req, res) => {\n  res.end('¡Hola Mundo!');\n});\nserver.listen(3000);"
+            }
+          ],
+          defaultResponse: "Node.js te permite usar JavaScript en el backend. ¿Qué quieres saber?"
+        },
+        defaultResponses: [
+          "¡Buena pregunta! ¿Podrías ser más específico sobre qué aspecto te interesa?",
+          "En programación hay varias formas de hacerlo. ¿Qué has intentado hasta ahora?",
+          "Ese tema es interesante. ¿Prefieres fundamentos o algo más avanzado?",
+          "¿Cuál es tu nivel de experiencia? (principiante/intermedio/avanzado)",
+          "¿Quieres que te explique la teoría o prefieres ver un ejemplo práctico?"
+        ]
+      },
+
+      // MÉTODOS DE AUTENTICACIÓN
+      loadUsers() {
+        const saved = localStorage.getItem('nexus-users');
+        if (saved) {
+          this.users = JSON.parse(saved);
+        }
+      },
+
+      saveUsers() {
+        localStorage.setItem('nexus-users', JSON.stringify(this.users));
+      },
+
+      checkCurrentUser() {
+        const saved = localStorage.getItem('nexus-current-user');
+        if (saved) {
+          this.currentUser = JSON.parse(saved);
+        }
+      },
+
+      saveCurrentUser() {
+        if (this.currentUser) {
+          localStorage.setItem('nexus-current-user', JSON.stringify(this.currentUser));
+        }
+      },
+
+      switchAuthTab(tab) {
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const loginTab = document.getElementById('loginTab');
+        const registerTab = document.getElementById('registerTab');
+
+        if (tab === 'login') {
+          loginForm.style.display = 'block';
+          registerForm.style.display = 'none';
+          loginTab.style.color = 'var(--cyan)';
+          loginTab.style.borderBottomColor = 'var(--cyan)';
+          registerTab.style.color = 'var(--text-dim)';
+          registerTab.style.borderBottomColor = 'transparent';
+        } else {
+          loginForm.style.display = 'none';
+          registerForm.style.display = 'block';
+          loginTab.style.color = 'var(--text-dim)';
+          loginTab.style.borderBottomColor = 'transparent';
+          registerTab.style.color = 'var(--cyan)';
+          registerTab.style.borderBottomColor = 'var(--cyan)';
+        }
+      },
+
+      registerUser() {
+        const username = document.getElementById('registerUsername').value.trim();
+        const email = document.getElementById('registerEmail').value.trim();
+        const password = document.getElementById('registerPassword').value;
+
+        if (!username || !email || !password) {
+          alert('⚠️ Por favor completa todos los campos');
+          return;
+        }
+
+        if (this.users[email]) {
+          alert('❌ Este email ya está registrado');
+          return;
+        }
+
+        this.users[email] = {
+          username: username,
+          email: email,
+          password: btoa(password),
+          provider: 'local',
+          createdAt: Date.now(),
+          linkedAccounts: [],
+          data: {
+            xp: 0,
+            level: 1,
+            streak: 0,
+            lastActivity: Date.now(),
+            profile: {
+              name: username,
+              email: email,
+              bio: 'Aprendiendo a programar con NEXUS 🚀',
+              avatar: '⬡'
+            }
+          },
+          settings: {
+            notifications: true,
+            sound: true,
+            darkMode: true,
+            language: 'es',
+            primaryColor: '#00f5ff',
+            secondaryColor: '#bd00ff',
+            accentColor: '#00ff41'
+          }
+        };
+
+        this.saveUsers();
+        alert('✅ Cuenta creada exitosamente! Inicia sesión ahora.');
+        this.switchAuthTab('login');
+
+        document.getElementById('registerUsername').value = '';
+        document.getElementById('registerEmail').value = '';
+        document.getElementById('registerPassword').value = '';
+      },
+
+      socialLogin(provider) {
+        const providerNames = {
+          google: 'Google',
+          github: 'GitHub',
+          facebook: 'Facebook',
+          discord: 'Discord',
+          microsoft: 'Microsoft',
+          apple: 'Apple'
+        };
+
+        const providerEmojis = {
+          google: '🔵',
+          github: '⚫',
+          facebook: '📘',
+          discord: '🎮',
+          microsoft: '🪟',
+          apple: '🍎'
+        };
+
+        // Simular login social
+        const name = prompt(`${providerEmojis[provider]} Simulando login con ${providerNames[provider]}.\n\n¿Cuál es tu nombre de usuario en NEXUS?`);
+        if (!name) return;
+
+        // Crear email simulado basado en el proveedor
+        const socialEmail = `${name.toLowerCase().replace(/\s+/g, '')}@${provider}.social`;
+        
+        // Verificar si el email ya existe
+        if (this.users[socialEmail]) {
+          // Usuario ya existe, solo logearlo
+          this.currentUser = {
+            email: socialEmail,
+            username: name,
+            provider: provider
+          };
+          this.saveCurrentUser();
+          this.loadUserData();
+          document.getElementById('loginScreen').style.display = 'none';
+          this.syncUI();
+          this.setupEventListeners();
+          this.notifyStartup();
+          this.notify(`🎉 ¡Bienvenido ${name}! (${providerNames[provider]})`);
+          return;
+        }
+
+        // Crear nuevo usuario con cuenta social
+        this.users[socialEmail] = {
+          username: name,
+          email: socialEmail,
+          password: null, // No tiene contraseña
+          provider: provider,
+          createdAt: Date.now(),
+          linkedAccounts: [provider],
+          data: {
+            xp: 0,
+            level: 1,
+            streak: 0,
+            lastActivity: Date.now(),
+            profile: {
+              name: name,
+              email: socialEmail,
+              bio: 'Aprendiendo a programar con NEXUS 🚀',
+              avatar: providerEmojis[provider]
+            }
+          },
+          settings: {
+            notifications: true,
+            sound: true,
+            darkMode: true,
+            language: 'es',
+            primaryColor: '#00f5ff',
+            secondaryColor: '#bd00ff',
+            accentColor: '#00ff41'
+          }
+        };
+
+        this.saveUsers();
+
+        // Login del nuevo usuario
+        this.currentUser = {
+          email: socialEmail,
+          username: name,
+          provider: provider
+        };
+
+        this.saveCurrentUser();
+        this.loadUserData();
+
+        document.getElementById('loginScreen').style.display = 'none';
+        this.syncUI();
+        this.setupEventListeners();
+        this.notifyStartup();
+
+        this.notify(`🎉 ¡Cuenta creada! Bienvenido ${name} (${providerNames[provider]})`);
+      },
+
+      linkSocialAccount(provider) {
+        if (!this.currentUser) {
+          alert('Debes estar logeado');
+          return;
+        }
+
+        const providerNames = {
+          google: 'Google',
+          github: 'GitHub',
+          facebook: 'Facebook',
+          discord: 'Discord',
+          microsoft: 'Microsoft',
+          apple: 'Apple'
+        };
+
+        const user = this.users[this.currentUser.email];
+        if (user) {
+          if (!user.linkedAccounts) {
+            user.linkedAccounts = [];
+          }
+          
+          if (user.linkedAccounts.includes(provider)) {
+            alert(`⚠️ Ya tienes ${providerNames[provider]} vinculado`);
+            return;
+          }
+
+          user.linkedAccounts.push(provider);
+          this.saveUsers();
+          this.notify(`✅ ${providerNames[provider]} vinculado correctamente`);
+        }
+      },
+
+      loginUser() {
+        const email = document.getElementById('loginEmail').value.trim();
+        const password = document.getElementById('loginPassword').value;
+
+        if (!email || !password) {
+          alert('⚠️ Por favor completa todos los campos');
+          return;
+        }
+
+        const user = this.users[email];
+        if (!user) {
+          alert('❌ Email no encontrado');
+          return;
+        }
+
+        if (btoa(password) !== user.password) {
+          alert('❌ Contraseña incorrecta');
+          return;
+        }
+
+        this.currentUser = {
+          email: user.email,
+          username: user.username
+        };
+
+        this.saveCurrentUser();
+        this.loadUserData();
+
+        document.getElementById('loginScreen').style.display = 'none';
+
+        document.getElementById('loginEmail').value = '';
+        document.getElementById('loginPassword').value = '';
+
+        this.syncUI();
+        this.setupEventListeners();
+        this.notifyStartup();
+
+        this.notify(`🎉 ¡Bienvenido ${user.username}!`);
+      },
+
+      logoutUser() {
+        if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
+          this.saveUserData();
+          this.currentUser = null;
+          localStorage.removeItem('nexus-current-user');
+
+          document.getElementById('loginScreen').style.display = 'flex';
+          this.notify('👋 Sesión cerrada');
+
+          document.getElementById('loginEmail').value = '';
+          document.getElementById('loginPassword').value = '';
+        }
+      },
+
+      loadUserData() {
+        if (!this.currentUser) return;
+
+        const user = this.users[this.currentUser.email];
+        if (user) {
+          this.data = JSON.parse(JSON.stringify(user.data));
+          this.settings = JSON.parse(JSON.stringify(user.settings));
+        }
+      },
+
+      saveUserData() {
+        if (!this.currentUser) return;
+
+        const user = this.users[this.currentUser.email];
+        if (user) {
+          user.data = JSON.parse(JSON.stringify(this.data));
+          user.settings = JSON.parse(JSON.stringify(this.settings));
+          this.saveUsers();
+        }
+      },
+
+      init() {
+        this.loadUsers();
+        this.loadSettings(); // Cargar configuración incluyendo idioma
+        this.checkCurrentUser();
+        if (!this.currentUser) {
+          document.getElementById('loginScreen').style.display = 'flex';
+        } else {
+          document.getElementById('loginScreen').style.display = 'none';
+          this.loadUserData();
+          this.syncUI();
+          this.updateLanguageUI(); // Aplicar idioma guardado
+          this.setupEventListeners();
+          this.notifyStartup();
+        }
+      },
+
+      loadData() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          this.data = JSON.parse(saved);
+        }
+      },
+
+      saveData() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(this.data));
+        // Guardar también en usuario logeado si existe
+        if (this.currentUser) {
+          this.saveUserData();
+        }
+      },
+
+      loadSettings() {
+        const saved = localStorage.getItem(SETTINGS_KEY);
+        if (saved) {
+          this.settings = { ...this.settings, ...JSON.parse(saved) };
+        }
+      },
+
+      saveSettings() {
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify(this.settings));
+        // Guardar también en usuario logeado si existe
+        if (this.currentUser) {
+          this.saveUserData();
+        }
+      },
+
+      show(sectionId) {
+        document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+        const section = document.getElementById(sectionId);
+        if (section) section.classList.remove('hidden');
+        
+        // MEJORADA: Actualizar indicador visual en los botones del menú
+        const navMenuButtons = document.querySelectorAll('.nav-menu-fixed button');
+        navMenuButtons.forEach(btn => {
+          btn.style.background = 'var(--panel)';
+          btn.style.borderColor = 'var(--border)';
+          btn.style.opacity = '0.7';
+          btn.style.boxShadow = 'none';
+        });
+
+        // Encontrar y destacar el botón activo
+        const sectionLabels = {
+          'hero': 'INICIO',
+          'ia': 'IA',
+          'recursos': 'RECURSOS',
+          'quizzes': 'QUIZZES',
+          'labs': 'LABS',
+          'logros': 'LOGROS'
+        };
+
+        const activeLabel = sectionLabels[sectionId];
+        const activeBtn = Array.from(navMenuButtons).find(btn => btn.textContent.includes(activeLabel));
+
+        if (activeBtn) {
+          activeBtn.style.background = 'rgba(0, 245, 255, 0.2)';
+          activeBtn.style.borderColor = 'var(--cyan)';
+          activeBtn.style.opacity = '1';
+          activeBtn.style.boxShadow = '0 0 10px rgba(0, 245, 255, 0.3)';
+        }
+        
+        // Inicializar contenido dinámico
+        if (sectionId === 'recursos') {
+          this.showResourceTab(this.currentResourceTab);
+        } else if (sectionId === 'quizzes') {
+          this.showQuizTab(this.currentQuizTab);
+        } else if (sectionId === 'ia') {
+          // MEJORADA: Cargar mensajes anteriores al abrir la sección de IA
+          this.loadMessages();
+        } else if (sectionId === 'labs') {
+          // MEJORADA: Mostrar Labs con editor
+          this.showLabs();
+        } else if (sectionId === 'logros') {
+          // MEJORADA: Mostrar Logros
+          this.showLogros();
+        }
+        
+        window.scrollTo(0, 0);
+      },
+
+      // MEJORADA: Nueva función para cargar mensajes persistentes
+      loadMessages() {
+        const msgsContainer = document.getElementById('msgs');
+        if (!msgsContainer || !this.data.messages) return;
+
+        // Limpiar mensajes previos
+        msgsContainer.innerHTML = '';
+
+        // Renderizar mensajes guardados
+        this.data.messages.forEach(msg => {
+          // Mensaje del usuario
+          const userMsg = document.createElement('div');
+          userMsg.style.cssText = 'margin-bottom: 1rem; text-align: right;';
+          userMsg.innerHTML = `
+            <div style="background: rgba(0, 245, 255, 0.2); border: 1px solid var(--cyan); padding: 0.8rem; border-radius: 4px; display: inline-block; max-width: 80%;">
+              <p style="margin: 0; color: var(--cyan); font-size: 0.9rem;">${msg.user}</p>
+            </div>
+          `;
+          msgsContainer.appendChild(userMsg);
+
+          // Respuesta de IA
+          const aiMsg = document.createElement('div');
+          aiMsg.style.cssText = 'margin-bottom: 1rem;';
+          aiMsg.innerHTML = `
+            <div style="background: rgba(0, 255, 65, 0.1); border: 1px solid var(--green); padding: 0.8rem; border-radius: 4px; display: inline-block; max-width: 80%;">
+              <p style="margin: 0; color: var(--text); font-size: 0.9rem; line-height: 1.5; white-space: pre-wrap;">${msg.response}</p>
+              <div style="margin-top: 0.5rem; display: flex; gap: 0.5rem;">
+                <button onclick="appState.data.usefulCount = (appState.data.usefulCount||0)+1; appState.notify('👍 Respuesta útil'); appState.syncUI();" style="padding: 0.3rem 0.8rem; background: transparent; border: 1px solid var(--green); color: var(--green); border-radius: 3px; cursor: pointer; font-size: 0.75rem;">👍 Útil</button>
+                <button onclick="appState.notify('👎 Feedback registrado');" style="padding: 0.3rem 0.8rem; background: transparent; border: 1px solid rgba(255,100,100,0.5); color: rgba(255,100,100,0.8); border-radius: 3px; cursor: pointer; font-size: 0.75rem;">👎 No útil</button>
+              </div>
+            </div>
+          `;
+          msgsContainer.appendChild(aiMsg);
+        });
+
+        // Scroll al final
+        if (msgsContainer) {
+          msgsContainer.scrollTop = msgsContainer.scrollHeight;
+        }
+      },
+
+      getIAResponse(userMessage) {
+        // MEJORADA: Sistema de intenciones más robusto
+        const message = userMessage.toLowerCase();
+        
+        // Detectar intenciones (saludos, despedidas, etc.)
+        const intentions = {
+          greeting: {
+            keywords: ['hola', 'buenos días', 'buenas noches', 'buenas tardes', 'hey', '¿qué tal?', 'hi'],
+            responses: [
+              "¡Hola! 👋 Soy tu asistente de programación. ¿En qué puedo ayudarte hoy?",
+              "¡Hey! Bienvenido a NEXUS. ¿Tienes alguna pregunta sobre programación?",
+              "¡Saludos! Estoy aquí para ayudarte con JavaScript, React, Python, Node.js y más. ¿Qué necesitas?"
+            ]
+          },
+          farewell: {
+            keywords: ['adiós', 'hasta luego', 'chao', 'bye', 'goodbye', 'nos vemos'],
+            responses: [
+              "¡Hasta luego! Sigue practicando y acumula XP. 🚀",
+              "¡Nos vemos pronto! Recuerda revisar los quizzes para ganar más XP. 💪",
+              "¡Adiós! Excelente trabajo hoy. Vuelve pronto para aprender más. 👨‍💻"
+            ]
+          }
+        };
+
+        // Verificar intenciones
+        for (const [intentName, intentData] of Object.entries(intentions)) {
+          if (intentData.keywords.some(k => message.includes(k))) {
+            return intentData.responses[Math.floor(Math.random() * intentData.responses.length)];
+          }
+        }
+
+        // Resto del código de detección por tópico
+        let detectedTopic = null;
+        
+        for (const [key, topic] of Object.entries(this.iaKnowledge)) {
+          if (key === 'defaultResponses') continue;
+          if (topic.keywords.some(keyword => message.includes(keyword))) {
+            detectedTopic = topic;
+            break;
+          }
+        }
+        
+        if (detectedTopic) {
+          for (const response of detectedTopic.responses) {
+            if (response.pattern.test(message)) {
+              return response.response;
+            }
+          }
+          return detectedTopic.defaultResponse;
+        }
+        
+        // MEJORADA: Respuestas genéricas mejoradas
+        const randomResponses = [
+          "¿Podrías darme más contexto? Así puedo ayudarte mejor. 🔍",
+          "¡Excelente pregunta! ¿Qué has investigado hasta ahora? 📚",
+          "En programación hay múltiples soluciones. ¿Qué enfoque prefieres? 🎯",
+          "¿Quieres que te explique la teoría o prefieres ver un ejemplo práctico? 💻",
+          "Puedo ayudarte con HTML, CSS, JavaScript, React, Python, Node.js y más. ¿Sobre cuál? 🔧",
+          "Ese es un buen punto. ¿Quieres que profundice en algún aspecto específico? 🤔"
+        ];
+        
+        return randomResponses[Math.floor(Math.random() * randomResponses.length)];
+      },
+
+      sendMessage() {
+        // MEJORADA: Corregido ID de 'msginput' a 'input'
+        const msgInput = document.getElementById('input');
+        const msgsContainer = document.getElementById('msgs');
+
+        // MEJORADA: Validación robusta de elementos
+        if (!msgInput || !msgsContainer) {
+          console.warn('⚠️ Elementos del chat no encontrados. Asegúrate de estar en la sección de IA.');
+          return;
+        }
+
+        const message = msgInput.value.trim();
+        if (!message) {
+          this.notify('⚠️ Escribe un mensaje');
+          return;
+        }
+
+        // Renderizar mensaje del usuario
+        const userMsg = document.createElement('div');
+        userMsg.style.cssText = 'margin-bottom: 1rem; text-align: right;';
+        userMsg.innerHTML = `
+          <div style="background: rgba(0, 245, 255, 0.2); border: 1px solid var(--cyan); padding: 0.8rem; border-radius: 4px; display: inline-block; max-width: 80%;">
+            <p style="margin: 0; color: var(--cyan); font-size: 0.9rem;">${message}</p>
+          </div>
+        `;
+        msgsContainer.appendChild(userMsg);
+
+        // MEJORADA: Inicializar array de mensajes si no existe
+        if (!this.data.messages) this.data.messages = [];
+        if (!this.data.questionsCount) this.data.questionsCount = 0;
+        this.data.questionsCount++;
+
+        this.addXP(5);
+
+        // MEJORADA: Mostrar indicador de "pensando" con animación
+        const thinkingMsg = document.createElement('div');
+        thinkingMsg.style.cssText = 'margin-bottom: 1rem;';
+        thinkingMsg.className = 'thinking-indicator';
+        thinkingMsg.innerHTML = `
+          <div style="background: rgba(0, 255, 65, 0.1); border: 1px solid var(--green); padding: 0.8rem; border-radius: 4px; display: inline-block;">
+            <p style="margin: 0; color: var(--text); font-size: 0.9rem;">
+              <span style="display: inline-block; animation: blink 1s infinite;">●</span>
+              <span style="display: inline-block; animation: blink 1s infinite 0.2s;">●</span>
+              <span style="display: inline-block; animation: blink 1s infinite 0.4s;">●</span>
+            </p>
+          </div>
+        `;
+        msgsContainer.appendChild(thinkingMsg);
+        msgsContainer.scrollTop = msgsContainer.scrollHeight;
+
+        setTimeout(() => {
+          const response = this.getIAResponse(message);
+          
+          // Remover indicador de "pensando"
+          thinkingMsg.remove();
+          
+          const aiMsg = document.createElement('div');
+          aiMsg.style.cssText = 'margin-bottom: 1rem;';
+          aiMsg.innerHTML = `
+            <div style="background: rgba(0, 255, 65, 0.1); border: 1px solid var(--green); padding: 0.8rem; border-radius: 4px; display: inline-block; max-width: 80%;">
+              <p style="margin: 0; color: var(--text); font-size: 0.9rem; line-height: 1.5; white-space: pre-wrap;">${response}</p>
+              <div style="margin-top: 0.5rem; display: flex; gap: 0.5rem;">
+                <button onclick="appState.data.usefulCount = (appState.data.usefulCount||0)+1; appState.notify('👍 Respuesta útil'); appState.syncUI();" style="padding: 0.3rem 0.8rem; background: transparent; border: 1px solid var(--green); color: var(--green); border-radius: 3px; cursor: pointer; font-size: 0.75rem;">👍 Útil</button>
+                <button onclick="appState.notify('👎 Feedback registrado');" style="padding: 0.3rem 0.8rem; background: transparent; border: 1px solid rgba(255,100,100,0.5); color: rgba(255,100,100,0.8); border-radius: 3px; cursor: pointer; font-size: 0.75rem;">👎 No útil</button>
+              </div>
+            </div>
+          `;
+          msgsContainer.appendChild(aiMsg);
+          msgsContainer.scrollTop = msgsContainer.scrollHeight;
+
+          this.data.messages.push({
+            user: message,
+            response: response,
+            timestamp: Date.now()
+          });
+
+          this.saveData();
+          this.syncUI();
+        }, 800 + Math.random() * 700);
+
+        msgInput.value = '';
+      },
+
+      addQuickQuestion(question) {
+        const input = document.getElementById('input');
+        input.value = question;
+        input.focus();
+      },
+
+      incrementQuestionCount() {
+        const questionsCount = document.getElementById('questionsCount');
+        if (questionsCount) {
+          let count = parseInt(questionsCount.textContent) || 0;
+          count++;
+          questionsCount.textContent = count;
+        }
+      },
+
+      addMessageToChat(icon, text) {
+        const messagesBox = document.getElementById('msgs');
+        if (!messagesBox) return;
+        const msgEl = document.createElement('div');
+        msgEl.textContent = `${icon} ${text}`;
+        msgEl.style.marginTop = '10px';
+        messagesBox.appendChild(msgEl);
+        messagesBox.scrollTop = messagesBox.scrollHeight;
+      },
+
+      addXP(amount) {
+        this.data.xp += amount;
+        this.data.level = Math.floor(this.data.xp / XP_PER_LEVEL) + 1;
+        this.data.lastActivity = Date.now();
+        this.syncUI();
+        this.saveData();
+      },
+
+      updateStreak() {
+        const now = Date.now();
+        const lastActivity = this.data.lastActivity;
+        const dayInMs = 24 * 60 * 60 * 1000;
+
+        if (now - lastActivity < dayInMs) {
+          this.data.streak++;
+        } else if (now - lastActivity > dayInMs * 2) {
+          this.data.streak = 1;
+        }
+        this.saveData();
+      },
+
+      syncUI() {
+        // Actualizar nombre del usuario logeado
+        const usernameBadge = document.getElementById('usernameBadge');
+        if (usernameBadge && this.currentUser) {
+          usernameBadge.textContent = this.currentUser.username.substring(0, 10);
+        }
+
+        const xpBadge = document.getElementById('xpBadge');
+        if (xpBadge) xpBadge.textContent = `⬡ ${this.data.xp} XP`;
+        
+        const level = document.getElementById('level');
+        if (level) level.textContent = this.data.level;
+        
+        const xp = document.getElementById('xp');
+        if (xp) xp.textContent = this.data.xp;
+        
+        const streak = document.getElementById('streak');
+        if (streak) streak.textContent = this.data.streak;
+        
+        const statLevel = document.getElementById('level');
+        if (statLevel) statLevel.textContent = this.data.level;
+        
+        const statXP = document.getElementById('xp');
+        if (statXP) statXP.textContent = this.data.xp;
+        
+        const statDays = document.getElementById('streak');
+        if (statDays) statDays.textContent = this.data.streak;
+
+        // MEJORADA: Actualizar barra de progreso XP
+        const xpProgress = document.getElementById('xpProgress');
+        if (xpProgress) {
+          const xpInLevel = this.data.xp % XP_PER_LEVEL;
+          const percent = (xpInLevel / XP_PER_LEVEL) * 100;
+          xpProgress.style.width = percent + '%';
+        }
+      },
+
+      // 🌍 NUEVA: Cambiar idioma
+      changeLanguage(lang) {
+        this.settings.language = lang;
+        this.saveSettings();
+        
+        // Actualizar interfaz completa
+        this.updateLanguageUI();
+        
+        this.notify(`🌍 ${lang === 'es' ? 'Idioma cambiado a Español' : 'Language changed to English'}`);
+      },
+
+      // 🌍 NUEVA: Actualizar UI con nuevo idioma
+      updateLanguageUI() {
+        // Actualizar botones de menú
+        const menuButtons = document.querySelectorAll('.nav-menu-fixed button');
+        const menuLabels = {
+          'INICIO': t('inicio'),
+          'IA': t('ia'),
+          'RECURSOS': t('recursos'),
+          'QUIZZES': t('quizzes'),
+          'LABS': t('labs'),
+          'LOGROS': t('logros')
+        };
+
+        menuButtons.forEach(btn => {
+          Object.keys(menuLabels).forEach(es => {
+            if (btn.textContent.includes(es)) {
+              btn.textContent = btn.textContent.replace(es, menuLabels[es]);
+            }
+          });
+        });
+
+        // Actualizar botones VOLVER
+        document.querySelectorAll('.btn-back').forEach(btn => {
+          if (btn.textContent.includes('VOLVER')) {
+            btn.textContent = '← ' + (appState.settings.language === 'es' ? 'VOLVER' : 'BACK');
+          }
+        });
+
+        // Actualizar placeholders
+        const editor = document.getElementById('code-editor');
+        if (editor) {
+          editor.placeholder = t('escribeTuCodigo');
+        }
+
+        // Actualizar texto de input en chat si existe
+        const input = document.getElementById('input');
+        if (input) {
+          input.placeholder = t('pregunta');
+        }
+
+        console.log(`✅ Interfaz actualizada a ${appState.settings.language.toUpperCase()}`);
+      },
+
+      notify(message) {
+        if (!this.settings.notifications) return;
+        const notif = document.getElementById('notif');
+        if (!notif) return;
+        notif.textContent = message;
+        notif.classList.add('show');
+        setTimeout(() => notif.classList.remove('show'), 3000);
+      },
+
+      notifyStartup() {
+        this.notify(`⬡ ${APP_NAME} v${APP_VERSION} ONLINE`);
+      },
+
+      reset() {
+        if (confirm('¿Estás seguro de que deseas resetear todo?')) {
+          this.data = { xp: 0, level: 1, streak: 0, lastActivity: Date.now() };
+          this.saveData();
+          this.syncUI();
+          this.notify('🔄 Datos reseteados');
+        }
+      },
+
+      setupEventListeners() {
+        const avatarBtn = document.getElementById('avatarBtn');
+        if (avatarBtn) avatarBtn.addEventListener('click', () => this.openModal());
+        
+        const modalClose = document.getElementById('modalClose');
+        if (modalClose) modalClose.addEventListener('click', () => this.closeModal());
+        
+        const saveBtn = document.getElementById('saveBtn');
+        if (saveBtn) saveBtn.addEventListener('click', () => this.saveModal());
+        
+        const resetBtn = document.getElementById('resetBtn');
+        if (resetBtn) resetBtn.addEventListener('click', () => this.reset());
+
+        const modal = document.getElementById('modal');
+        if (modal) {
+          modal.addEventListener('click', (e) => {
+            if (e.target.id === 'modal') this.closeModal();
+          });
+        }
+
+        const notificationsToggle = document.getElementById('notificationsToggle');
+        if (notificationsToggle) {
+          notificationsToggle.addEventListener('change', (e) => {
+            this.settings.notifications = e.target.checked;
+          });
+        }
+
+        const soundToggle = document.getElementById('soundToggle');
+        if (soundToggle) {
+          soundToggle.addEventListener('change', (e) => {
+            this.settings.sound = e.target.checked;
+          });
+        }
+
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        if (darkModeToggle) {
+          darkModeToggle.addEventListener('change', (e) => {
+            this.settings.darkMode = e.target.checked;
+            this.applyTheme();
+          });
+        }
+
+        const languageSelect = document.getElementById('languageSelect');
+        if (languageSelect) {
+          languageSelect.addEventListener('change', (e) => {
+            this.settings.language = e.target.value;
+            this.notify(`🌐 Idioma: ${e.target.value}`);
+          });
+        }
+
+        // SELECTORES DE TEMA DE COLOR
+        const themeButtons = document.querySelectorAll('[data-theme]');
+        themeButtons.forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const themeName = e.target.dataset.theme;
+            this.setQuickTheme(themeName);
+          });
+        });
+
+        // SELECTOR DE COLOR PERSONALIZADO
+        const primaryColorInput = document.getElementById('primaryColorInput');
+        const secondaryColorInput = document.getElementById('secondaryColorInput');
+        const accentColorInput = document.getElementById('accentColorInput');
+
+        if (primaryColorInput) {
+          primaryColorInput.addEventListener('change', (e) => {
+            this.applyColorTheme(e.target.value, this.settings.secondaryColor, this.settings.accentColor);
+          });
+        }
+
+        if (secondaryColorInput) {
+          secondaryColorInput.addEventListener('change', (e) => {
+            this.applyColorTheme(this.settings.primaryColor, e.target.value, this.settings.accentColor);
+          });
+        }
+
+        if (accentColorInput) {
+          accentColorInput.addEventListener('change', (e) => {
+            this.applyColorTheme(this.settings.primaryColor, this.settings.secondaryColor, e.target.value);
+          });
+        }
+      },
+
+      openModal() {
+        const modal = document.getElementById('modal');
+        if (modal) modal.classList.add('active');
+        this.syncUI();
+        this.syncSettings();
+      },
+
+      closeModal() {
+        const modal = document.getElementById('modal');
+        if (modal) modal.classList.remove('active');
+      },
+
+      syncSettings() {
+        const notificationsToggle = document.getElementById('notificationsToggle');
+        if (notificationsToggle) notificationsToggle.checked = this.settings.notifications;
+        
+        const soundToggle = document.getElementById('soundToggle');
+        if (soundToggle) soundToggle.checked = this.settings.sound;
+        
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        if (darkModeToggle) darkModeToggle.checked = this.settings.darkMode;
+        
+        const languageSelect = document.getElementById('languageSelect');
+        if (languageSelect) languageSelect.value = this.settings.language;
+
+        // ACTUALIZAR COLORES
+        const primaryColorInput = document.getElementById('primaryColorInput');
+        if (primaryColorInput) primaryColorInput.value = this.settings.primaryColor;
+
+        const secondaryColorInput = document.getElementById('secondaryColorInput');
+        if (secondaryColorInput) secondaryColorInput.value = this.settings.secondaryColor;
+
+        const accentColorInput = document.getElementById('accentColorInput');
+        if (accentColorInput) accentColorInput.value = this.settings.accentColor;
+
+        this.updateProfileUI();
+        this.updateLinkedAccountsUI();
+      },
+
+      saveModal() {
+        this.saveProfile();
+        this.saveSettings();
+        this.closeModal();
+        this.notify('💾 Configuración y perfil guardados');
+      },
+
+      applyTheme() {
+        if (this.settings.darkMode) {
+          document.documentElement.style.colorScheme = 'dark';
+        } else {
+          document.documentElement.style.colorScheme = 'light';
+        }
+      },
+
+      // RECURSOS POR LENGUAJE
+      resources: {
+        html: [
+          { name: 'MDN HTML', desc: 'Documentación completa', link: 'https://developer.mozilla.org/es/docs/Web/HTML', icon: '📖' },
+          { name: 'HTML.com', desc: 'Tutoriales y referencia', link: 'https://html.com/', icon: '📚' },
+          { name: 'W3Schools HTML', desc: 'Aprende interactivamente', link: 'https://www.w3schools.com/html/', icon: '🎓' }
+        ],
+        css: [
+          { name: 'MDN CSS', desc: 'Guía completa de CSS', link: 'https://developer.mozilla.org/es/docs/Web/CSS', icon: '📖' },
+          { name: 'CSS-Tricks', desc: 'Tips y trucos avanzados', link: 'https://css-tricks.com/', icon: '✨' },
+          { name: 'W3Schools CSS', desc: 'Tutorial paso a paso', link: 'https://www.w3schools.com/css/', icon: '🎓' }
+        ],
+        js: [
+          { name: 'MDN JavaScript', desc: 'Referencia oficial', link: 'https://developer.mozilla.org/es/docs/Web/JavaScript', icon: '📖' },
+          { name: 'JavaScript.info', desc: 'Guía moderna completa', link: 'https://es.javascript.info/', icon: '📚' },
+          { name: 'Eloquent JavaScript', desc: 'Libro online gratuito', link: 'https://eloquentjavascript.net/', icon: '📕' }
+        ],
+        ts: [
+          { name: 'TypeScript Oficial', desc: 'Documentación oficial', link: 'https://www.typescriptlang.org/docs/', icon: '📖' },
+          { name: 'TS Deep Dive', desc: 'Guía completa en español', link: 'https://basarat.gitbook.io/typescript/', icon: '📚' },
+          { name: 'TypeScript Handbook', desc: 'Manual oficial', link: 'https://www.typescriptlang.org/docs/handbook/', icon: '📘' }
+        ],
+        react: [
+          { name: 'React Oficial', desc: 'Documentación oficial', link: 'https://react.dev/', icon: '⚛️' },
+          { name: 'React Router', desc: 'Enrutamiento profesional', link: 'https://reactrouter.com/', icon: '🛣️' },
+          { name: 'React Patterns', desc: 'Patrones y buenas prácticas', link: 'https://reactpatterns.com/', icon: '🎯' }
+        ],
+        nodejs: [
+          { name: 'Node.js Oficial', desc: 'Documentación oficial', link: 'https://nodejs.org/es/docs/', icon: '🟢' },
+          { name: 'Express.js', desc: 'Framework web minimalista', link: 'https://expressjs.com/', icon: '⚡' },
+          { name: 'Node Best Practices', desc: 'Mejores prácticas', link: 'https://github.com/goldbergyoni/nodebestpractices', icon: '🏆' }
+        ],
+        php: [
+          { name: 'PHP Oficial', desc: 'Documentación oficial', link: 'https://www.php.net/docs.php', icon: '🐘' },
+          { name: 'Laravel', desc: 'Framework web moderno', link: 'https://laravel.com/docs', icon: '🛠️' },
+          { name: 'PHP The Right Way', desc: 'Guía de mejores prácticas', link: 'https://phptherightway.com/', icon: '✅' }
+        ],
+        python: [
+          { name: 'Python Oficial', desc: 'Documentación oficial', link: 'https://docs.python.org/3/', icon: '🐍' },
+          { name: 'Real Python', desc: 'Tutoriales y guías', link: 'https://realpython.com/', icon: '📚' },
+          { name: 'Django', desc: 'Framework web para Python', link: 'https://www.djangoproject.com/', icon: '🎯' }
+        ],
+        java: [
+          { name: 'Java Oficial', desc: 'Documentación oficial', link: 'https://docs.oracle.com/javase/', icon: '☕' },
+          { name: 'Spring Boot', desc: 'Framework Java moderno', link: 'https://spring.io/projects/spring-boot', icon: '🚀' },
+          { name: 'Baeldung', desc: 'Tutoriales Java avanzados', link: 'https://www.baeldung.com/', icon: '📖' }
+        ],
+        csharp: [
+          { name: 'C# Oficial', desc: 'Documentación oficial', link: 'https://docs.microsoft.com/es-es/dotnet/csharp/', icon: '🔷' },
+          { name: '.NET Framework', desc: 'Plataforma Microsoft', link: 'https://dotnet.microsoft.com/', icon: '🛠️' },
+          { name: 'ASP.NET Core', desc: 'Framework web .NET', link: 'https://dotnet.microsoft.com/en-us/apps/aspnet', icon: '🌐' }
+        ]
+      },
+
+      // QUIZZES POR LENGUAJE
+      quizzes: {
+        html: [
+          { name: 'HTML Fundamentals', desc: 'Conceptos básicos', questions: 15, xp: 150, level: 'Principiante', link: '#' },
+          { name: 'Semántica HTML5', desc: 'Estructura semántica', questions: 20, xp: 200, level: 'Intermedio', link: '#' },
+          { name: 'Accesibilidad Web', desc: 'Prácticas accesibles', questions: 18, xp: 180, level: 'Intermedio', link: '#' }
+        ],
+        css: [
+          { name: 'CSS Basics', desc: 'Fundamentos CSS', questions: 15, xp: 150, level: 'Principiante', link: '#' },
+          { name: 'Flexbox Mastery', desc: 'Domina Flexbox', questions: 20, xp: 200, level: 'Intermedio', link: '#' },
+          { name: 'CSS Grid', desc: 'Sistema Grid avanzado', questions: 22, xp: 220, level: 'Avanzado', link: '#' }
+        ],
+        js: [
+          { name: 'JavaScript Basics', desc: 'Conceptos fundamentales', questions: 20, xp: 200, level: 'Principiante', link: '#' },
+          { name: 'ES6+ Features', desc: 'Características modernas', questions: 25, xp: 250, level: 'Intermedio', link: '#' },
+          { name: 'Async/Await', desc: 'Programación asíncrona', questions: 18, xp: 180, level: 'Avanzado', link: '#' }
+        ],
+        ts: [
+          { name: 'TypeScript Intro', desc: 'Introducción a TS', questions: 18, xp: 180, level: 'Principiante', link: '#' },
+          { name: 'Types & Interfaces', desc: 'Sistema de tipos', questions: 22, xp: 220, level: 'Intermedio', link: '#' },
+          { name: 'Advanced TS', desc: 'Conceptos avanzados', questions: 25, xp: 250, level: 'Avanzado', link: '#' }
+        ],
+        react: [
+          { name: 'React Fundamentals', desc: 'Básicos de React', questions: 20, xp: 200, level: 'Principiante', link: '#' },
+          { name: 'Hooks & State', desc: 'Hooks and State Management', questions: 22, xp: 220, level: 'Intermedio', link: '#' },
+          { name: 'Performance', desc: 'Optimización de performance', questions: 20, xp: 200, level: 'Avanzado', link: '#' }
+        ],
+        nodejs: [
+          { name: 'Node.js Basics', desc: 'Fundamentos de Node', questions: 18, xp: 180, level: 'Principiante', link: '#' },
+          { name: 'Express Server', desc: 'Crear servidores', questions: 20, xp: 200, level: 'Intermedio', link: '#' },
+          { name: 'REST APIs', desc: 'APIs RESTful profesionales', questions: 22, xp: 220, level: 'Avanzado', link: '#' }
+        ],
+        php: [
+          { name: 'PHP Basics', desc: 'Fundamentos PHP', questions: 18, xp: 180, level: 'Principiante', link: '#' },
+          { name: 'OOP en PHP', desc: 'Programación orientada a objetos', questions: 20, xp: 200, level: 'Intermedio', link: '#' },
+          { name: 'Laravel Framework', desc: 'Laravel avanzado', questions: 22, xp: 220, level: 'Avanzado', link: '#' }
+        ],
+        python: [
+          { name: 'Python Basics', desc: 'Fundamentos Python', questions: 18, xp: 180, level: 'Principiante', link: '#' },
+          { name: 'OOP Python', desc: 'Programación orientada a objetos', questions: 22, xp: 220, level: 'Intermedio', link: '#' },
+          { name: 'Data Science', desc: 'Pandas, NumPy, Matplotlib', questions: 24, xp: 240, level: 'Avanzado', link: '#' }
+        ],
+        java: [
+          { name: 'Java Basics', desc: 'Fundamentos Java', questions: 20, xp: 200, level: 'Principiante', link: '#' },
+          { name: 'OOP en Java', desc: 'Clases y objetos', questions: 22, xp: 220, level: 'Intermedio', link: '#' },
+          { name: 'Spring Boot', desc: 'Desarrollo con Spring', questions: 24, xp: 240, level: 'Avanzado', link: '#' }
+        ],
+        csharp: [
+          { name: 'C# Basics', desc: 'Fundamentos C#', questions: 18, xp: 180, level: 'Principiante', link: '#' },
+          { name: 'OOP C#', desc: 'Orientado a objetos', questions: 20, xp: 200, level: 'Intermedio', link: '#' },
+          { name: 'ASP.NET Core', desc: 'Desarrollo web .NET', questions: 22, xp: 220, level: 'Avanzado', link: '#' }
+        ]
+      },
+
+      currentResourceTab: 'html',
+      currentQuizTab: 'html',
+
+      showResourceTab(lang) {
+        this.currentResourceTab = lang;
+        const content = document.getElementById('resourcesContent');
+        if (!content) return;
+
+        content.innerHTML = '';
+        const resources = this.resources[lang] || [];
+        
+        resources.forEach(resource => {
+          const card = document.createElement('div');
+          card.style.cssText = 'background: var(--panel); border: 1px solid var(--border); padding: 1.5rem; border-radius: 4px;';
+          card.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+              <span style="font-size: 2rem;">${resource.icon}</span>
+              <div>
+                <h3 style="color: var(--cyan); font-family: Orbitron, monospace; margin: 0; font-size: 1rem;">${resource.name}</h3>
+                <p style="color: var(--text-dim); font-size: 0.8rem; margin: 0.25rem 0 0 0;">${resource.desc}</p>
+              </div>
+            </div>
+            <a href="${resource.link}" target="_blank" style="display: inline-block; padding: 10px 16px; background: rgba(0, 245, 255, 0.1); border: 1px solid var(--cyan); color: var(--cyan); text-decoration: none; border-radius: 4px; font-size: 0.75rem; font-family: Share Tech Mono, monospace; text-transform: uppercase; font-weight: bold; transition: all 0.3s; cursor: pointer;">🔗 Visitar →</a>
+          `;
+          content.appendChild(card);
+        });
+      },
+
+      showQuizTab(lang) {
+        this.currentQuizTab = lang;
+        const content = document.getElementById('quizzesContent');
+        if (!content) return;
+
+        content.innerHTML = '';
+        const quizzes = this.quizzes[lang] || [];
+        
+        quizzes.forEach((quiz, quizIndex) => {
+          const card = document.createElement('div');
+          card.style.cssText = 'background: var(--panel); border: 1px solid var(--border); padding: 1.5rem; border-radius: 4px;';
+          card.innerHTML = `
+            <h3 style="color: var(--cyan); font-family: Orbitron, monospace; margin: 0 0 0.5rem 0; font-size: 1.1rem;">${quiz.name}</h3>
+            <p style="color: var(--text-dim); font-size: 0.85rem; margin: 0 0 1rem 0;">${quiz.desc}</p>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+              <div style="background: rgba(0, 245, 255, 0.1); padding: 10px; border-radius: 4px; text-align: center;">
+                <p style="color: var(--text-dim); font-size: 0.7rem; text-transform: uppercase; margin: 0 0 0.5rem 0;">Preguntas</p>
+                <p style="color: var(--cyan); font-family: Orbitron, monospace; font-size: 1.3rem; font-weight: bold; margin: 0;">${quiz.questions}</p>
+              </div>
+              <div style="background: rgba(0, 255, 65, 0.1); padding: 10px; border-radius: 4px; text-align: center;">
+                <p style="color: var(--text-dim); font-size: 0.7rem; text-transform: uppercase; margin: 0 0 0.5rem 0;">XP</p>
+                <p style="color: var(--green); font-family: Orbitron, monospace; font-size: 1.3rem; font-weight: bold; margin: 0;">+${quiz.xp}</p>
+              </div>
+            </div>
+            <p style="color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase; margin: 0.5rem 0 1rem 0;">Dificultad: <span style="color: var(--cyan); font-weight: bold;">${quiz.level}</span></p>
+            <button onclick="appState.startQuiz(${quizIndex}, '${lang}')" style="width: 100%; padding: 12px; background: transparent; border: 1px solid var(--cyan); color: var(--cyan); border-radius: 4px; font-family: Share Tech Mono, monospace; text-transform: uppercase; font-size: 0.75rem; font-weight: bold; cursor: pointer; transition: all 0.3s; hover: background: rgba(0, 245, 255, 0.1);">Iniciar Quiz →</button>
+          `;
+          content.appendChild(card);
+        });
+      },
+
+      // MEJORADA: Nueva función para iniciar quizzes interactivos
+      startQuiz(quizIndex, lang) {
+        const quiz = this.quizzes[lang][quizIndex];
+        if (!quiz) return;
+
+        // MEJORADA: Crear modal del quiz
+        const quizModal = document.createElement('div');
+        quizModal.id = 'quizModal';
+        quizModal.style.cssText = `
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(4, 4, 14, 0.95);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 5000;
+          border: 2px solid var(--cyan);
+        `;
+
+        // Crear preguntas de ejemplo (en una aplicación real vendrían de una BD)
+        const quizQuestions = [
+          {
+            question: `¿Cuál es la sintaxis correcta de un ${quiz.name}?`,
+            options: ['Opción A', 'Opción B', 'Opción C', 'Opción D'],
+            correct: 0
+          },
+          {
+            question: `¿Para qué se usa principalmente ${quiz.name}?`,
+            options: ['Opción A', 'Opción B', 'Opción C', 'Opción D'],
+            correct: 1
+          },
+          {
+            question: `¿Cuál es una ventaja de ${quiz.name}?`,
+            options: ['Opción A', 'Opción B', 'Opción C', 'Opción D'],
+            correct: 2
+          }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+
+        const renderQuestion = () => {
+          const q = quizQuestions[currentQuestion];
+          quizModal.innerHTML = `
+            <div style="background: var(--panel); border: 2px solid var(--cyan); padding: 2rem; border-radius: 8px; max-width: 500px; width: 90%;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h2 style="color: var(--cyan); font-family: Orbitron; margin: 0; font-size: 1.3rem;">${quiz.name}</h2>
+                <span style="color: var(--green); font-weight: bold;">${currentQuestion + 1}/${quizQuestions.length}</span>
+              </div>
+
+              <div style="background: rgba(0, 245, 255, 0.1); padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem; border-left: 3px solid var(--cyan);">
+                <p style="color: var(--text); font-size: 1rem; line-height: 1.5; margin: 0;">${q.question}</p>
+              </div>
+
+              <div style="display: flex; flex-direction: column; gap: 0.8rem; margin-bottom: 1.5rem;">
+                ${q.options.map((opt, idx) => `
+                  <button onclick="appState.answerQuestion(${idx}, ${q.correct}, '${quiz.name}', ${quizIndex}, '${lang}', ${quiz.xp})"
+                    style="padding: 1rem; background: rgba(0, 245, 255, 0.05); border: 1px solid var(--border); color: var(--text); border-radius: 4px; cursor: pointer; text-align: left; transition: all 0.3s; font-size: 0.95rem;"
+                    onmouseover="this.style.background='rgba(0, 245, 255, 0.15)'; this.style.borderColor='var(--cyan)';"
+                    onmouseout="this.style.background='rgba(0, 245, 255, 0.05)'; this.style.borderColor='var(--border)';">
+                    <strong>${String.fromCharCode(65 + idx)}.</strong> ${opt}
+                  </button>
+                `).join('')}
+              </div>
+
+              <button onclick="document.getElementById('quizModal').remove();" style="width: 100%; padding: 0.8rem; background: transparent; border: 1px solid rgba(255, 100, 100, 0.5); color: rgba(255, 100, 100, 0.8); border-radius: 4px; cursor: pointer; font-size: 0.85rem;">Salir del Quiz</button>
+            </div>
+          `;
+        };
+
+        // Guardar en appState para acceso desde botones
+        this.currentQuizState = {
+          questions: quizQuestions,
+          currentQuestion,
+          score,
+          quiz,
+          renderQuestion,
+          quizModal
+        };
+
+        renderQuestion();
+        document.body.appendChild(quizModal);
+      },
+
+      // MEJORADA: Función para responder preguntas del quiz
+      answerQuestion(selectedIdx, correctIdx, quizName, quizIdx, lang, xpReward) {
+        const state = this.currentQuizState;
+        if (!state) return;
+
+        if (selectedIdx === correctIdx) {
+          state.score++;
+          this.notify('✅ ¡Respuesta correcta!');
+        } else {
+          this.notify('❌ Respuesta incorrecta');
+        }
+
+        state.currentQuestion++;
+
+        if (state.currentQuestion < state.questions.length) {
+          setTimeout(() => {
+            state.renderQuestion();
+          }, 500);
+        } else {
+          // Quiz completado
+          const percentage = (state.score / state.questions.length) * 100;
+          const earnedXP = Math.floor((percentage / 100) * xpReward);
+
+          this.addXP(earnedXP);
+
+          const modal = document.getElementById('quizModal');
+          if (modal) {
+            modal.innerHTML = `
+              <div style="background: var(--panel); border: 2px solid var(--green); padding: 2rem; border-radius: 8px; max-width: 500px; width: 90%; text-align: center;">
+                <h2 style="color: var(--green); font-family: Orbitron; margin: 0 0 1rem 0; font-size: 1.5rem;">🎉 ¡QUIZ COMPLETADO!</h2>
+                
+                <div style="background: rgba(0, 255, 65, 0.1); padding: 1.5rem; border-radius: 4px; margin-bottom: 1.5rem; border: 1px solid var(--green);">
+                  <p style="color: var(--text-dim); font-size: 0.85rem; text-transform: uppercase; margin: 0 0 0.5rem 0;">Puntuación</p>
+                  <p style="color: var(--green); font-family: Orbitron; font-size: 2rem; font-weight: bold; margin: 0;">${percentage.toFixed(0)}%</p>
+                  <p style="color: var(--text-dim); font-size: 0.85rem; margin: 0.5rem 0 0 0;">${state.score}/${state.questions.length} respuestas correctas</p>
+                </div>
+
+                <div style="background: rgba(0, 245, 255, 0.1); padding: 1.5rem; border-radius: 4px; margin-bottom: 1.5rem; border: 1px solid var(--cyan);">
+                  <p style="color: var(--text-dim); font-size: 0.85rem; text-transform: uppercase; margin: 0 0 0.5rem 0;">XP Ganado</p>
+                  <p style="color: var(--cyan); font-family: Orbitron; font-size: 2rem; font-weight: bold; margin: 0;">+${earnedXP}</p>
+                </div>
+
+                <p style="color: var(--text); margin: 0 0 1.5rem 0;">Nivel actual: <strong style="color: var(--cyan); font-family: Orbitron;">${this.data.level}</strong></p>
+
+                <button onclick="document.getElementById('quizModal').remove(); appState.notify('📚 ¡Excelente trabajo!');" 
+                  style="width: 100%; padding: 1rem; background: transparent; border: 1px solid var(--green); color: var(--green); border-radius: 4px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 0.85rem;">
+                  Cerrar
+                </button>
+              </div>
+            `;
+          }
+        }
+      },
+
+      updateLinkedAccountsUI() {
+        const container = document.getElementById('linkedAccountsContainer');
+        if (!container || !this.currentUser) return;
+
+        const user = this.users[this.currentUser.email];
+        if (!user) return;
+
+        const linkedAccounts = user.linkedAccounts || [];
+        const providerEmojis = {
+          google: '🔵',
+          github: '⚫',
+          facebook: '📘',
+          discord: '🎮',
+          microsoft: '🪟',
+          apple: '🍎',
+          local: '🔐'
+        };
+
+        const providerNames = {
+          google: 'Google',
+          github: 'GitHub',
+          facebook: 'Facebook',
+          discord: 'Discord',
+          microsoft: 'Microsoft',
+          apple: 'Apple',
+          local: 'Contraseña'
+        };
+
+        container.innerHTML = '';
+
+        // Mostrar proveedor principal
+        const mainProvider = user.provider || 'local';
+        const mainCard = document.createElement('div');
+        mainCard.style.cssText = 'background: rgba(0, 245, 255, 0.1); padding: 1rem; border-radius: 4px; margin-bottom: 1rem; border-left: 3px solid var(--cyan);';
+        mainCard.innerHTML = `
+          <p style="margin: 0; color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase; margin-bottom: 0.5rem;">Cuenta Principal</p>
+          <p style="margin: 0; color: var(--cyan); font-size: 1rem; font-weight: bold;">${providerEmojis[mainProvider]} ${providerNames[mainProvider]}</p>
+        `;
+        container.appendChild(mainCard);
+
+        // Mostrar cuentas vinculadas
+        if (linkedAccounts.length > 0 && linkedAccounts[0] !== mainProvider) {
+          linkedAccounts.forEach(provider => {
+            if (provider !== mainProvider) {
+              const card = document.createElement('div');
+              card.style.cssText = 'background: rgba(0, 245, 255, 0.05); padding: 0.8rem; border-radius: 4px; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center;';
+              card.innerHTML = `
+                <span style="color: var(--text); font-size: 0.9rem;">${providerEmojis[provider]} ${providerNames[provider]}</span>
+                <span style="color: var(--green); font-size: 0.75rem; font-weight: bold;">✓ VINCULADO</span>
+              `;
+              container.appendChild(card);
+            }
+          });
+        }
+      },
+
+      updateProfileUI() {
+        const profileName = document.getElementById('profileName');
+        const profileEmail = document.getElementById('profileEmail');
+        const profileBio = document.getElementById('profileBio');
+        const profileAvatar = document.getElementById('profileAvatar');
+
+        if (profileName) profileName.value = this.data.profile.name;
+        if (profileEmail) profileEmail.value = this.data.profile.email;
+        if (profileBio) profileBio.value = this.data.profile.bio;
+        if (profileAvatar) profileAvatar.value = this.data.profile.avatar;
+      },
+
+      saveProfile() {
+        const profileName = document.getElementById('profileName');
+        const profileEmail = document.getElementById('profileEmail');
+        const profileBio = document.getElementById('profileBio');
+        const profileAvatar = document.getElementById('profileAvatar');
+
+        if (profileName) this.data.profile.name = profileName.value;
+        if (profileEmail) this.data.profile.email = profileEmail.value;
+        if (profileBio) this.data.profile.bio = profileBio.value;
+        if (profileAvatar) this.data.profile.avatar = profileAvatar.value;
+
+        this.saveData();
+        this.notify('👤 Perfil actualizado');
+      },
+
+      applyColorTheme(primaryColor, secondaryColor, accentColor) {
+        this.settings.primaryColor = primaryColor;
+        this.settings.secondaryColor = secondaryColor;
+        this.settings.accentColor = accentColor;
+        
+        document.documentElement.style.setProperty('--cyan', primaryColor);
+        document.documentElement.style.setProperty('--violet', secondaryColor);
+        document.documentElement.style.setProperty('--green', accentColor);
+        
+        this.saveSettings();
+        this.notify('🎨 Tema actualizado');
+      },
+
+      setQuickTheme(themeName) {
+        const themes = {
+          cyan: { primary: '#00f5ff', secondary: '#bd00ff', accent: '#00ff41' },
+          purple: { primary: '#bd00ff', secondary: '#00f5ff', accent: '#ff006e' },
+          green: { primary: '#00ff41', secondary: '#00f5ff', accent: '#bd00ff' },
+          pink: { primary: '#ff006e', secondary: '#00f5ff', accent: '#bd00ff' },
+          orange: { primary: '#ffaa00', secondary: '#ff006e', accent: '#00f5ff' }
+        };
+
+        if (themes[themeName]) {
+          this.applyColorTheme(themes[themeName].primary, themes[themeName].secondary, themes[themeName].accent);
+        }
+      },
+
+      // MEJORADA: Función para mostrar Labs con editor
+      showLabs() {
+        const labsSection = document.getElementById('labs');
+        if (!labsSection) return;
+        
+        const labsHTML = `
+          <button class="btn-back" onclick="show('hero')">← VOLVER</button>
+          <h2 style="font-family: 'Orbitron', monospace; font-size: 2.5rem; text-align: center; color: white; margin-bottom: 0.5rem;">⚡ LABS</h2>
+          <p style="text-align: center; color: var(--text-dim); margin-bottom: 2rem;">Editor de código en vivo</p>
+          
+          <div style="max-width: 1200px; margin: 0 auto;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+              <!-- EDITOR -->
+              <div class="box" style="padding: 1.5rem;">
+                <h3 style="color: var(--cyan); margin-bottom: 1rem;">✏️ EDITOR</h3>
+                <textarea id="code-editor" style="width: 100%; height: 300px; background: #000; color: #0f0; font-family: 'Share Tech Mono', monospace; padding: 1rem; border: 2px solid var(--cyan); border-radius: 4px; resize: vertical;" placeholder="Escribe tu código HTML/CSS/JS aquí..."></textarea>
+                <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                  <button onclick="appState.runCode()" style="flex: 1; border-color: var(--green); color: var(--green);">▶ EJECUTAR</button>
+                  <button onclick="appState.clearEditor()" style="flex: 1; border-color: var(--magenta); color: var(--magenta);">⌧ LIMPIAR</button>
+                </div>
+              </div>
+              
+              <!-- VISTA PREVIA -->
+              <div class="box" style="padding: 1.5rem;">
+                <h3 style="color: var(--cyan); margin-bottom: 1rem;">👁️ VISTA PREVIA</h3>
+                <iframe id="preview-frame" style="width: 100%; height: 300px; background: white; border: 2px solid var(--cyan); border-radius: 4px;"></iframe>
+              </div>
+            </div>
+            
+            <!-- EJEMPLOS RÁPIDOS - MEJORADO CON CATEGORÍAS -->
+            <div class="box" style="margin-top: 1.5rem;">
+              <h3 style="color: var(--cyan); margin-bottom: 1rem;">⚡ EJEMPLOS AVANZADOS</h3>
+              
+              <!-- Pestañas de categorías -->
+              <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+                <button onclick="appState.showExampleCategory('basicos')" style="width: auto; padding: 0.5rem 1rem; background: rgba(0,245,255,0.2); border-color: var(--cyan); color: var(--cyan); font-weight: bold;">📋 Básicos</button>
+                <button onclick="appState.showExampleCategory('frameworks')" style="width: auto; padding: 0.5rem 1rem; border-color: var(--border); color: var(--text-dim);">⚛️ Frameworks</button>
+                <button onclick="appState.showExampleCategory('visualizacion')" style="width: auto; padding: 0.5rem 1rem; border-color: var(--border); color: var(--text-dim);">📊 Visualización</button>
+                <button onclick="appState.showExampleCategory('juegos')" style="width: auto; padding: 0.5rem 1rem; border-color: var(--border); color: var(--text-dim);">🎮 3D & Juegos</button>
+              </div>
+              
+              <!-- Ejemplos Básicos (categoría por defecto) -->
+              <div id="example-buttons" style="display: flex; gap: 0.8rem; flex-wrap: wrap;">
+                <button onclick="appState.loadExample('html')" style="width: auto; padding: 0.8rem 1.5rem;">📄 HTML</button>
+                <button onclick="appState.loadExample('css')" style="width: auto; padding: 0.8rem 1.5rem;">🎨 CSS</button>
+                <button onclick="appState.loadExample('js')" style="width: auto; padding: 0.8rem 1.5rem;">⚙️ JS</button>
+                <button onclick="appState.loadExample('tailwind')" style="width: auto; padding: 0.8rem 1.5rem;">🎨 Tailwind</button>
+              </div>
+            </div>
+          </div>
+        `;
+        
+        labsSection.innerHTML = labsHTML;
+
+        // MEJORADA: Cargar código guardado después de renderizar
+        setTimeout(() => {
+          this.loadLabCode();
+        }, 100);
+
+        // MEJORADA: Agregar evento para guardar automáticamente al escribir
+        setTimeout(() => {
+          const editor = document.getElementById('code-editor');
+          if (editor) {
+            editor.addEventListener('input', () => {
+              clearTimeout(this.labSaveTimeout);
+              this.labSaveTimeout = setTimeout(() => {
+                this.saveLabCode();
+              }, 1000);
+            });
+          }
+        }, 200);
+      },
+
+      // MEJORADA: Función para ejecutar código en Labs
+      runCode() {
+        const code = document.getElementById('code-editor')?.value;
+        const iframe = document.getElementById('preview-frame');
+        if (iframe && code) {
+          try {
+            const doc = iframe.contentDocument || iframe.contentWindow.document;
+            doc.open();
+            doc.write(code);
+            doc.close();
+            this.notify('✅ Código ejecutado correctamente');
+          } catch (error) {
+            this.notify('❌ Error en el código: ' + error.message);
+          }
+        }
+      },
+
+      // MEJORADA: Limpiar editor
+      clearEditor() {
+        const editor = document.getElementById('code-editor');
+        if (editor) {
+          editor.value = '';
+          const iframe = document.getElementById('preview-frame');
+          if (iframe) {
+            const doc = iframe.contentDocument || iframe.contentWindow.document;
+            doc.open();
+            doc.write('');
+            doc.close();
+          }
+          this.notify('🔄 Editor limpiado');
+        }
+      },
+
+      // MEJORADA: Función para cargar ejemplos avanzados (React, Vue, Angular, etc)
+      loadExample(type) {
+        const examples = {
+          // 📋 EJEMPLOS BÁSICOS
+          html: '<h1 style="color: #00f5ff; text-align: center; padding: 40px;">Hola NEXUS</h1>\n<p style="text-align: center; color: #888;">Esto es HTML básico</p>',
+          
+          css: '<style>\n  body { background: linear-gradient(45deg, #00f5ff, #bd00ff); height: 100vh; margin: 0; display: flex; align-items: center; justify-content: center; }\n  h1 { color: white; text-align: center; font-family: Arial; }\n</style>\n<h1>CSS Gradient en NEXUS</h1>',
+          
+          js: '<h1 id="demo" style="text-align: center; color: #00f5ff;"></h1>\n<script>\n  document.getElementById("demo").innerHTML = "JavaScript funcionando en NEXUS! " + new Date().toLocaleTimeString();\n  setInterval(() => {\n    document.getElementById("demo").innerHTML = "Hora: " + new Date().toLocaleTimeString();\n  }, 1000);\n<\/script>',
+
+          // ⚛️ FRAMEWORKS
+          react: `<div id="root"></div>
+<script src="https://unpkg.com/react@18/umd/react.development.js"><\/script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"><\/script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"><\/script>
+
+<script type="text/babel">
+  function Contador() {
+    const [contador, setContador] = React.useState(0);
+    
+    return (
+      <div style={{ 
+        textAlign: 'center', 
+        fontFamily: 'Arial',
+        padding: '40px',
+        background: 'linear-gradient(135deg, #00f5ff, #bd00ff)',
+        borderRadius: '10px',
+        color: 'white',
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center'
+      }}>
+        <h1>⚛️ React en NEXUS</h1>
+        <h2>Contador: {contador}</h2>
+        <button 
+          onClick={() => setContador(contador + 1)}
+          style={{
+            padding: '10px 20px',
+            fontSize: '16px',
+            background: 'white',
+            border: 'none',
+            borderRadius: '5px',
+            cursor: 'pointer',
+            marginTop: '20px'
+          }}>
+          Incrementar
+        </button>
+      </div>
+    );
+  }
+
+  ReactDOM.createRoot(document.getElementById('root')).render(<Contador />);
+<\/script>`,
+
+          vue: `<div id="app" style="display: flex; align-items: center; justify-content: center; min-height: 100vh; background: #04040e;">
+  <div style="text-align: center; font-family: Arial; padding: 40px; background: linear-gradient(135deg, #42b883, #35495e); border-radius: 10px; color: white;">
+    <h1>🟢 Vue.js en NEXUS</h1>
+    <h2>Contador: {{ contador }}</h2>
+    <button @click="contador++" style="padding: 10px 20px; font-size: 16px; background: white; border: none; border-radius: 5px; cursor: pointer; color: #35495e; font-weight: bold;">
+      Incrementar
+    </button>
+  </div>
+</div>
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"><\/script>
+<script>
+  const { createApp } = Vue;
+  createApp({
+    data() {
+      return {
+        contador: 0
+      }
+    }
+  }).mount('#app');
+<\/script>`,
+
+          svelte: `<div id="root" style="display: flex; align-items: center; justify-content: center; min-height: 100vh; background: #04040e;"></div>
+
+<script>
+  const app = {
+    contador: 0,
+    
+    incrementar() {
+      this.contador++;
+      this.render();
+    },
+    
+    render() {
+      document.getElementById('root').innerHTML = \`
+        <div style="text-align: center; font-family: Arial; padding: 40px; background: linear-gradient(135deg, #ff3e00, #ff6b4a); border-radius: 10px; color: white;">
+          <h1>⚡ Svelte en NEXUS</h1>
+          <h2>Contador: \${this.contador}</h2>
+          <button onclick="window.app.incrementar()" style="padding: 10px 20px; font-size: 16px; background: white; border: none; border-radius: 5px; cursor: pointer; color: #ff3e00; font-weight: bold;">
+            Incrementar
+          </button>
+        </div>
+      \`;
+    }
+  };
+  
+  window.app = app;
+  app.render();
+<\/script>`,
+
+          // 🎨 ESTILOS
+          tailwind: `<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cdn.tailwindcss.com"><\/script>
+</head>
+<body class="bg-gray-900 min-h-screen flex items-center justify-center">
+  <div class="max-w-md w-full bg-gradient-to-br from-cyan-500 to-purple-600 rounded-2xl shadow-2xl p-8 text-white">
+    <div class="text-center mb-8">
+      <h1 class="text-4xl font-bold mb-2">🎨 Tailwind CSS</h1>
+      <p class="text-cyan-100">Diseño con utilidades</p>
+    </div>
+    
+    <div class="space-y-4">
+      <button class="w-full bg-white/20 hover:bg-white/30 backdrop-blur-lg rounded-lg py-3 px-4 font-semibold transition-all duration-300 transform hover:scale-105">
+        Botón 1
+      </button>
+      <button class="w-full bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 rounded-lg py-3 px-4 font-semibold transition-all duration-300 shadow-lg">
+        Botón 2
+      </button>
+      <button class="w-full border-2 border-white hover:bg-white hover:text-purple-600 rounded-lg py-3 px-4 font-semibold transition-all duration-300">
+        Botón 3
+      </button>
+    </div>
+    
+    <div class="mt-8 grid grid-cols-3 gap-3">
+      <div class="bg-white/10 rounded-lg p-4 text-center backdrop-blur-sm"><div class="text-2xl mb-1">🎯</div><div class="text-xs">Rápido</div></div>
+      <div class="bg-white/10 rounded-lg p-4 text-center backdrop-blur-sm"><div class="text-2xl mb-1">⚡</div><div class="text-xs">Moderno</div></div>
+      <div class="bg-white/10 rounded-lg p-4 text-center backdrop-blur-sm"><div class="text-2xl mb-1">✨</div><div class="text-xs">Flexible</div></div>
+    </div>
+  </div>
+</body>
+</html>`,
+
+          // 🌀 3D Y GRÁFICOS
+          threejs: `<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { margin: 0; overflow: hidden; background: #04040e; }
+    #info { position: absolute; top: 20px; left: 20px; color: white; font-family: Arial; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 5px; z-index: 10; }
+  </style>
+</head>
+<body>
+  <div id="info">🌀 Three.js en NEXUS</div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>
+  <script>
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x04040e);
+    
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 5;
+    
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.shadowMap.enabled = true;
+    document.body.appendChild(renderer.domElement);
+    
+    const ambientLight = new THREE.AmbientLight(0x404060);
+    scene.add(ambientLight);
+    
+    const pointLight = new THREE.PointLight(0x00f5ff, 1, 10);
+    pointLight.position.set(2, 2, 2);
+    scene.add(pointLight);
+    
+    const geometry = new THREE.BoxGeometry(1.5, 1.5, 1.5);
+    const material = new THREE.MeshStandardMaterial({ color: 0x00f5ff, emissive: 0x0066aa, roughness: 0.3, metalness: 0.7 });
+    const cube = new THREE.Mesh(geometry, material);
+    scene.add(cube);
+    
+    function animate() {
+      requestAnimationFrame(animate);
+      cube.rotation.x += 0.01;
+      cube.rotation.y += 0.012;
+      renderer.render(scene, camera);
+    }
+    
+    animate();
+    
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  <\/script>
+</body>
+</html>`,
+
+          d3js: `<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://d3js.org/d3.v7.min.js"><\/script>
+  <style>
+    body { background: #04040e; font-family: Arial; margin: 0; padding: 20px; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+    .chart-container { background: #080818; padding: 30px; border-radius: 10px; border: 2px solid #00f5ff; max-width: 800px; }
+    h1 { text-align: center; color: #00f5ff; margin-top: 0; }
+    .bar { fill: #00f5ff; transition: fill 0.3s; }
+    .bar:hover { fill: #bd00ff; }
+  </style>
+</head>
+<body>
+  <div class="chart-container">
+    <h1>📊 D3.js - Gráfico de Lenguajes</h1>
+    <div id="chart"></div>
+  </div>
+
+  <script>
+    const data = [
+      { lenguaje: 'JavaScript', usuarios: 95 },
+      { lenguaje: 'Python', usuarios: 85 },
+      { lenguaje: 'Java', usuarios: 70 },
+      { lenguaje: 'C#', usuarios: 60 },
+      { lenguaje: 'TypeScript', usuarios: 55 }
+    ];
+
+    const margin = { top: 20, right: 30, bottom: 60, left: 60 };
+    const width = 600 - margin.left - margin.right;
+    const height = 350 - margin.top - margin.bottom;
+
+    const svg = d3.select('#chart')
+      .append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+      .append('g')
+        .attr('transform', \`translate(\${margin.left},\${margin.top})\`);
+
+    const x = d3.scaleBand().domain(data.map(d => d.lenguaje)).range([0, width]).padding(0.3);
+    const y = d3.scaleLinear().domain([0, 100]).range([height, 0]);
+
+    svg.append('g').attr('transform', \`translate(0,\${height})\`).call(d3.axisBottom(x)).style('color', 'white');
+    svg.append('g').call(d3.axisLeft(y)).style('color', 'white');
+
+    svg.selectAll('.bar')
+      .data(data)
+      .enter()
+      .append('rect')
+        .attr('class', 'bar')
+        .attr('x', d => x(d.lenguaje))
+        .attr('y', d => y(d.usuarios))
+        .attr('width', x.bandwidth())
+        .attr('height', d => height - y(d.usuarios))
+        .attr('rx', 5);
+  <\/script>
+</body>
+</html>`,
+
+          // 🎮 JUEGO
+          game: `<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #04040e; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: Arial; }
+    .game-container { text-align: center; }
+    canvas { border: 3px solid #00f5ff; border-radius: 10px; box-shadow: 0 0 30px rgba(0,245,255,0.3); background: #080818; }
+    .score { color: #00f5ff; font-size: 24px; margin-bottom: 10px; text-shadow: 0 0 10px #00f5ff; }
+    .controls { color: #6070aa; margin-top: 10px; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <div class="score">Puntos: <span id="score">0</span></div>
+    <canvas id="gameCanvas" width="400" height="400"></canvas>
+    <div class="controls">Usa las flechas ← → para moverte</div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const scoreEl = document.getElementById('score');
+
+    const player = { x: 200, y: 350, width: 40, height: 40, speed: 5 };
+    let coins = [];
+    let score = 0;
+
+    for (let i = 0; i < 5; i++) {
+      coins.push({ x: Math.random() * 360, y: Math.random() * 300, radius: 8, collected: false });
+    }
+
+    const keys = {};
+    document.addEventListener('keydown', (e) => keys[e.key] = true);
+    document.addEventListener('keyup', (e) => keys[e.key] = false);
+
+    function update() {
+      if (keys['ArrowLeft'] && player.x > 0) player.x -= player.speed;
+      if (keys['ArrowRight'] && player.x < 360) player.x += player.speed;
+
+      coins.forEach(coin => {
+        if (!coin.collected) {
+          const dx = (player.x + player.width/2) - coin.x;
+          const dy = (player.y + player.height/2) - coin.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          
+          if (distance < player.width/2 + coin.radius) {
+            coin.collected = true;
+            score++;
+            scoreEl.textContent = score;
+            coins.push({ x: Math.random() * 360, y: Math.random() * 300, radius: 8, collected: false });
+          }
+        }
+      });
+    }
+
+    function draw() {
+      ctx.fillStyle = '#080818';
+      ctx.fillRect(0, 0, 400, 400);
+
+      ctx.strokeStyle = 'rgba(0,245,255,0.1)';
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= 400; i += 20) {
+        ctx.beginPath();
+        ctx.moveTo(i, 0);
+        ctx.lineTo(i, 400);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(0, i);
+        ctx.lineTo(400, i);
+        ctx.stroke();
+      }
+
+      coins.forEach(coin => {
+        if (!coin.collected) {
+          ctx.shadowColor = '#ffaa00';
+          ctx.shadowBlur = 15;
+          ctx.beginPath();
+          ctx.arc(coin.x, coin.y, coin.radius, 0, Math.PI * 2);
+          ctx.fillStyle = '#ffaa00';
+          ctx.fill();
+        }
+      });
+
+      ctx.shadowColor = '#00f5ff';
+      ctx.shadowBlur = 20;
+      ctx.fillStyle = '#00f5ff';
+      ctx.beginPath();
+      ctx.moveTo(player.x + player.width/2, player.y);
+      ctx.lineTo(player.x + player.width, player.y + player.height);
+      ctx.lineTo(player.x, player.y + player.height);
+      ctx.closePath();
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      
+      requestAnimationFrame(gameLoop);
+    }
+
+    function gameLoop() {
+      update();
+      draw();
+    }
+
+    gameLoop();
+  <\/script>
+</body>
+</html>`
+        };
+
+        const editor = document.getElementById('code-editor');
+        if (editor && examples[type]) {
+          editor.value = examples[type];
+          this.notify('💡 Ejemplo cargado: ' + type.toUpperCase());
+          this.saveLabCode(); // Guardar automáticamente
+        }
+      },
+
+      // NUEVA: Mostrar categorías de ejemplos
+      showExampleCategory(category) {
+        const container = document.getElementById('example-buttons');
+        if (!container) return;
+        
+        const categories = {
+          basicos: [
+            { id: 'html', text: '📄 HTML', color: 'var(--cyan)' },
+            { id: 'css', text: '🎨 CSS', color: 'var(--cyan)' },
+            { id: 'js', text: '⚙️ JS', color: 'var(--cyan)' },
+            { id: 'tailwind', text: '🎨 Tailwind', color: 'var(--green)' }
+          ],
+          frameworks: [
+            { id: 'react', text: '⚛️ React', color: '#61dafb' },
+            { id: 'vue', text: '🟢 Vue', color: '#42b883' },
+            { id: 'svelte', text: '⚡ Svelte', color: '#ff3e00' }
+          ],
+          visualizacion: [
+            { id: 'threejs', text: '🌀 Three.js', color: '#00f5ff' },
+            { id: 'd3js', text: '📊 D3.js', color: '#ffaa00' }
+          ],
+          juegos: [
+            { id: 'game', text: '🎮 Juego', color: '#bd00ff' }
+          ]
+        };
+        
+        const examples = categories[category] || categories.basicos;
+        
+        container.innerHTML = examples.map(ex => `
+          <button onclick="appState.loadExample('${ex.id}')" 
+            style="width: auto; padding: 0.8rem 1.5rem; background: rgba(0,245,255,0.1); border-color: ${ex.color}; color: ${ex.color};">
+            ${ex.text}
+          </button>
+        `).join('');
+        
+        // Actualizar estilos de categorías
+        document.querySelectorAll('[onclick^="appState.showExampleCategory"]').forEach(btn => {
+          btn.style.background = 'transparent';
+          btn.style.borderColor = 'var(--border)';
+          btn.style.opacity = '0.7';
+        });
+        
+        if (event && event.target) {
+          event.target.style.background = 'rgba(0,245,255,0.2)';
+          event.target.style.borderColor = 'var(--cyan)';
+          event.target.style.opacity = '1';
+        }
+      },
+
+      // MEJORADA: Guardar código de Labs
+      saveLabCode() {
+        const editor = document.getElementById('code-editor');
+        if (editor && this.currentUser) {
+          const user = this.users[this.currentUser.email];
+          if (user) {
+            if (!user.labData) user.labData = {};
+            user.labData.lastCode = editor.value;
+            this.saveUsers();
+            console.log('✅ Código de Labs guardado');
+          }
+        }
+      },
+
+      // MEJORADA: Cargar código guardado de Labs
+      loadLabCode() {
+        const editor = document.getElementById('code-editor');
+        if (editor && this.currentUser) {
+          const user = this.users[this.currentUser.email];
+          if (user && user.labData && user.labData.lastCode) {
+            editor.value = user.labData.lastCode;
+            console.log('✅ Código de Labs cargado');
+          }
+        }
+      },
+
+      // MEJORADA: Función para mostrar Logros
+      showLogros() {
+        const logrosSection = document.getElementById('logros');
+        if (!logrosSection) return;
+        
+        // Calcular estadísticas
+        const totalXP = this.data.xp;
+        const nivel = this.data.level;
+        const racha = this.data.streak;
+        const preguntas = this.data.questionsCount || 0;
+        const respuestasUtiles = this.data.usefulCount || 0;
+        
+        // Sistema de logros basado en estadísticas
+        const logrosList = [
+          { nombre: 'Principiante', desc: 'Alcanza 100 XP', icon: '🌱', xpReq: 100, completado: totalXP >= 100 },
+          { nombre: 'Aprendiz', desc: 'Alcanza 500 XP', icon: '📚', xpReq: 500, completado: totalXP >= 500 },
+          { nombre: 'Programador', desc: 'Alcanza 1000 XP', icon: '💻', xpReq: 1000, completado: totalXP >= 1000 },
+          { nombre: 'Experto', desc: 'Alcanza 2500 XP', icon: '⚡', xpReq: 2500, completado: totalXP >= 2500 },
+          { nombre: 'Master', desc: 'Alcanza 5000 XP', icon: '👑', xpReq: 5000, completado: totalXP >= 5000 },
+          { nombre: 'Chat Activo', desc: 'Haz 50 preguntas', icon: '💬', req: 50, completado: preguntas >= 50 },
+          { nombre: 'Racha Inicial', desc: 'Mantén 7 días de racha', icon: '🔥', req: 7, completado: racha >= 7 },
+          { nombre: 'Dedicación', desc: 'Mantén 30 días de racha', icon: '⭐', req: 30, completado: racha >= 30 },
+          { nombre: 'Útil', desc: 'Recibe 10 votos útiles', icon: '👍', req: 10, completado: respuestasUtiles >= 10 }
+        ];
+        
+        const logrosHTML = logrosList.map(logro => {
+          const completado = logro.completado ? 'var(--green)' : 'var(--text-dim)';
+          const opacidad = logro.completado ? '1' : '0.4';
+          return `
+            <div style="background: var(--panel); border: 2px solid ${completado}; padding: 1.5rem; border-radius: 8px; display: flex; align-items: center; gap: 1rem; opacity: ${opacidad}; transition: all 0.3s;">
+              <span style="font-size: 2rem;">${logro.icon}</span>
+              <div style="flex: 1;">
+                <h3 style="color: ${completado}; margin: 0 0 0.3rem 0; font-family: Orbitron;">${logro.nombre}</h3>
+                <p style="color: var(--text-dim); margin: 0; font-size: 0.85rem;">${logro.desc}</p>
+              </div>
+              ${logro.completado ? '<span style="color: var(--green); font-size: 1.5rem;">✓</span>' : ''}
+            </div>
+          `;
+        }).join('');
+        
+        logrosSection.innerHTML = `
+          <button class="btn-back" onclick="show('hero')">← VOLVER</button>
+          <h2 style="font-family: 'Orbitron', monospace; font-size: 2.5rem; text-align: center; color: white; margin-bottom: 0.5rem;">🏆 LOGROS</h2>
+          <p style="text-align: center; color: var(--text-dim); margin-bottom: 2rem;">Tu progreso y estadísticas</p>
+          
+          <div style="max-width: 1200px; margin: 0 auto;">
+            <!-- Stats rápidas -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
+              <div style="background: var(--panel); padding: 1.5rem; text-align: center; border: 2px solid var(--cyan); border-radius: 8px;">
+                <p style="color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; margin: 0 0 0.5rem 0;">Total XP</p>
+                <p style="color: var(--cyan); font-family: Orbitron; font-size: 2rem; font-weight: bold; margin: 0;">${totalXP}</p>
+              </div>
+              <div style="background: var(--panel); padding: 1.5rem; text-align: center; border: 2px solid var(--violet); border-radius: 8px;">
+                <p style="color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; margin: 0 0 0.5rem 0;">Nivel</p>
+                <p style="color: var(--violet); font-family: Orbitron; font-size: 2rem; font-weight: bold; margin: 0;">${nivel}</p>
+              </div>
+              <div style="background: var(--panel); padding: 1.5rem; text-align: center; border: 2px solid var(--green); border-radius: 8px;">
+                <p style="color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; margin: 0 0 0.5rem 0;">Racha</p>
+                <p style="color: var(--green); font-family: Orbitron; font-size: 2rem; font-weight: bold; margin: 0;">${racha} días</p>
+              </div>
+            </div>
+            
+            <!-- Grid de logros -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
+              ${logrosHTML}
+            </div>
+          </div>
+        `;
+      }
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const loader = document.getElementById('loader');
+      
+      setTimeout(() => {
+        if (loader) {
+          loader.classList.add('hidden');
+        }
+      }, 2500);
+      
+      if (loader) {
+        loader.addEventListener('click', () => {
+          loader.classList.add('hidden');
+        });
+      }
+      
+      appState.init();
+    });
+    
+    setTimeout(() => {
+      const loader = document.getElementById('loader');
+      if (loader && !loader.classList.contains('hidden')) {
+        loader.classList.add('hidden');
+      }
+    }, 4000);
+
+    /* FUNCIONES GLOBALES WRAPPER */
+    function show(id) {
+      appState.show(id);
+    }
+
+    function send() {
+      appState.sendMessage();
+    }
+
+    function openProfile() {
+      appState.openModal();
+    }
+
+    function closeProfile() {
+      appState.closeModal();
+    }
+
+    function save() {
+      appState.saveModal();
+    }
+
+    function reset() {
+      appState.reset();
+    }
+
+    function notify(msg) {
+      appState.notify(msg);
+    }
+  </script>
+</body>
+</html>
