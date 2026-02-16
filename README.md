@@ -1,8 +1,3 @@
-¡Ahora entiendo! Quieres el README que ya teníamos (el extenso y detallado) pero con **código real** en lugar de descripciones. Aquí está:
-
----
-
-```markdown
 # 🚀 NEXUS - Plataforma Educativa de Programación
 
 ![Versión](https://img.shields.io/badge/versión-7.0-00f5ff?style=for-the-badge)
@@ -29,17 +24,14 @@
 
 ## 🎯 Descripción General
 
-**NEXUS** es una plataforma educativa interactiva de **código abierto** diseñada para el aprendizaje de programación. Implementa un entorno completo de aprendizaje con gamificación, asistente IA simulado, laboratorio de código en vivo y sistema de logros.
+**NEXUS** es una plataforma educativa interactiva de **código abierto** diseñada para el aprendizaje de programación. Implementa un entorno completo de aprendizaje con gamificación, asistente IA simulado, laboratorio de código en vivo y sistema de logros, todo en una **aplicación de página única (SPA)** construida con tecnologías web estándar.
 
-```javascript
-// El corazón de la aplicación - Objeto principal appState
-const appState = {
-  users: {}, // Todos los usuarios registrados
-  currentUser: null, // Usuario activo
-  data: { xp: 0, level: 1, streak: 0 }, // Datos del usuario actual
-  settings: { notifications: true, sound: true, darkMode: true } // Configuración
-};
-```
+### Propósito Principal
+Proporcionar un espacio de aprendizaje interactivo donde los usuarios puedan:
+- Aprender conceptos de programación mediante un asistente conversacional
+- Practicar con ejercicios prácticos (quizzes)
+- Experimentar con código en un entorno seguro (labs)
+- Seguir su progreso mediante un sistema de XP y logros
 
 ---
 
@@ -50,718 +42,198 @@ const appState = {
 ┌─────────────────────────────────────────────────────────────┐
 │                    Navegador Web                             │
 ├─────────────────────────────────────────────────────────────┤
+│                                                              │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐      │
 │  │    HTML5     │  │    CSS3      │  │  JavaScript  │      │
 │  │  Estructura  │  │   Estilos    │  │   Lógica     │      │
 │  └──────────────┘  └──────────────┘  └──────────────┘      │
+│                                                              │
 │  ┌──────────────────────────────────────────────────────┐  │
 │  │              localStorage (Persistencia)              │  │
+│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ │  │
+│  │  │ Usuarios │ │  Perfil  │ │   XP     │ │  Chat    │ │  │
+│  │  └──────────┘ └──────────┘ └──────────┘ └──────────┘ │  │
 │  └──────────────────────────────────────────────────────┘  │
+│                                                              │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### Patrón Módulo Implementado
-
-```javascript
-// appState usa el patrón módulo revelador
-const appState = {
-  // Datos públicos
-  users: JSON.parse(localStorage.getItem('nexus-users')) || {},
-  
-  // Métodos públicos
-  loadUsers() {
-    const saved = localStorage.getItem('nexus-users');
-    if (saved) this.users = JSON.parse(saved);
-  },
-  
-  saveUsers() {
-    localStorage.setItem('nexus-users', JSON.stringify(this.users));
-  },
-  
-  // Inicialización
-  init() {
-    this.loadUsers();
-    this.checkCurrentUser();
-    if (!this.currentUser) {
-      document.getElementById('loginScreen').style.display = 'flex';
-    } else {
-      document.getElementById('loginScreen').style.display = 'none';
-      this.loadUserData();
-      this.syncUI();
-    }
-  }
-};
-```
+### Patrón de Diseño
+La aplicación utiliza el **patrón Módulo** con un objeto central `appState` que actúa como:
+- **Store**: Contiene todo el estado de la aplicación (usuarios, datos, configuraciones)
+- **Controlador**: Maneja la lógica de negocio y las interacciones
+- **Renderizador**: Actualiza la interfaz según el estado
 
 ---
 
 ## ⚡ Funcionalidades Principales
 
 ### 1. **Sistema de Autenticación**
-
-```javascript
-// Registro de usuario
-registerUser() {
-  const username = document.getElementById('registerUsername').value.trim();
-  const email = document.getElementById('registerEmail').value.trim();
-  const password = document.getElementById('registerPassword').value;
-  
-  if (!username || !email || !password) {
-    alert('⚠️ Por favor completa todos los campos');
-    return;
-  }
-  
-  this.users[email] = {
-    username: username,
-    email: email,
-    password: btoa(password), // Codificación simple (no segura para producción)
-    provider: 'local',
-    createdAt: Date.now(),
-    data: { xp: 0, level: 1, streak: 0, profile: { name: username } },
-    settings: { notifications: true, sound: true, darkMode: true, language: 'es' }
-  };
-  
-  this.saveUsers();
-  alert('✅ Cuenta creada exitosamente');
-}
-
-// Login social simulado
-socialLogin(provider) {
-  const providerNames = { google: 'Google', github: 'GitHub', facebook: 'Facebook' };
-  const name = prompt(`Simulando login con ${providerNames[provider]}\n¿Tu nombre?`);
-  if (!name) return;
-  
-  // Crear email simulado
-  const socialEmail = `${name.toLowerCase()}@${provider}.social`;
-  this.currentUser = { email: socialEmail, username: name, provider: provider };
-  this.saveCurrentUser();
-  document.getElementById('loginScreen').style.display = 'none';
-  this.notify(`🎉 ¡Bienvenido ${name}!`);
-}
-```
+| Característica | Implementación |
+|----------------|----------------|
+| Registro local | Almacena usuario con email y contraseña (codificada en base64) |
+| Login social simulado | 6 proveedores (Google, GitHub, Facebook, Discord, Microsoft, Apple) |
+| Persistencia de sesión | Guarda usuario actual en `localStorage` |
+| Cuentas vinculadas | Sistema de vinculación de múltiples proveedores |
 
 ### 2. **Perfil de Usuario Personalizable**
-
-```javascript
-// Guardar perfil
-saveProfile() {
-  const profileName = document.getElementById('profileName');
-  const profileEmail = document.getElementById('profileEmail');
-  const profileBio = document.getElementById('profileBio');
-  const profileAvatar = document.getElementById('profileAvatar');
-  
-  if (profileName) this.data.profile.name = profileName.value;
-  if (profileEmail) this.data.profile.email = profileEmail.value;
-  if (profileBio) this.data.profile.bio = profileBio.value;
-  if (profileAvatar) this.data.profile.avatar = profileAvatar.value;
-  
-  this.saveData();
-  this.notify('👤 Perfil actualizado');
-}
-
-// Cambiar tema de color
-applyColorTheme(primaryColor, secondaryColor, accentColor) {
-  this.settings.primaryColor = primaryColor;
-  this.settings.secondaryColor = secondaryColor;
-  this.settings.accentColor = accentColor;
-  
-  document.documentElement.style.setProperty('--cyan', primaryColor);
-  document.documentElement.style.setProperty('--violet', secondaryColor);
-  document.documentElement.style.setProperty('--green', accentColor);
-  
-  this.saveSettings();
-  this.notify('🎨 Tema actualizado');
-}
-```
+- **Avatar**: Emoji personalizable (máx. 2 caracteres)
+- **Información**: Nombre, email, biografía
+- **Estadísticas**: Nivel, XP total, racha de días
+- **Configuración**: Notificaciones, sonidos, tema oscuro, idioma
+- **Temas de color**: 5 temas rápidos + selector personalizado de colores
 
 ### 3. **Asistente IA**
+- **Motor de respuestas**: Sistema basado en reglas y detección de patrones
+- **Detección de intenciones**: Saludos, despedidas, temas técnicos
+- **Persistencia**: Historial de conversaciones guardado por usuario
+- **Feedback**: Sistema de votos (útil/no útil) para mejorar respuestas
 
-```javascript
-// Motor de IA - Base de conocimiento
-iaKnowledge: {
-  javascript: {
-    keywords: ['javascript', 'js', 'var', 'let', 'const'],
-    responses: [
-      {
-        pattern: /(empezar|comenzar|aprender)/i,
-        response: "Para empezar con JavaScript:\n1️⃣ Aprende variables\n2️⃣ Practica con if/else\n3️⃣ Domina funciones"
-      },
-      {
-        pattern: /(que es|definición)/i,
-        response: "JavaScript es un lenguaje interpretado que se ejecuta en el navegador"
-      }
-    ],
-    defaultResponse: "JavaScript es versátil. ¿Qué aspecto te interesa?"
-  },
-  intentions: {
-    greeting: {
-      keywords: ['hola', 'buenos días', 'hey'],
-      responses: ["¡Hola! 👋 ¿En qué puedo ayudarte?", "¡Hey! Bienvenido a NEXUS"]
-    }
-  }
-},
+### 4. **Recursos Educativos**
+- **10 categorías**: HTML, CSS, JavaScript, TypeScript, React, Node.js, PHP, Python, Java, C#
+- **3 recursos por categoría**: Enlaces a documentación oficial y tutoriales
 
-// Procesador de mensajes
-getIAResponse(userMessage) {
-  const message = userMessage.toLowerCase();
-  
-  // Detectar intenciones primero
-  for (const intent of Object.values(this.iaKnowledge.intentions)) {
-    if (intent.keywords.some(k => message.includes(k))) {
-      return intent.responses[Math.floor(Math.random() * intent.responses.length)];
-    }
-  }
-  
-  // Detectar temas técnicos
-  for (const [topic, data] of Object.entries(this.iaKnowledge)) {
-    if (topic === 'intentions' || topic === 'defaultResponses') continue;
-    if (data.keywords.some(k => message.includes(k))) {
-      for (const response of data.responses) {
-        if (response.pattern.test(message)) return response.response;
-      }
-      return data.defaultResponse;
-    }
-  }
-  
-  // Respuestas genéricas
-  const defaults = [
-    "¿Podrías ser más específico?",
-    "¿Qué has investigado hasta ahora?",
-    "¿Quieres teoría o un ejemplo práctico?"
-  ];
-  return defaults[Math.floor(Math.random() * defaults.length)];
-},
+### 5. **Quizzes Interactivos**
+- **10 lenguajes × 3 niveles**: 30 quizzes diferentes
+- **Sistema de puntuación**: Porcentaje basado en respuestas correctas
+- **Recompensas XP**: Variable según rendimiento (0-100% del XP ofrecido)
+- **Modal interactivo**: Interfaz limpia con feedback inmediato
 
-// Enviar mensaje
-sendMessage() {
-  const msgInput = document.getElementById('input');
-  const msgsContainer = document.getElementById('msgs');
-  const message = msgInput.value.trim();
-  
-  // Mostrar mensaje usuario
-  msgsContainer.innerHTML += `<div style="text-align:right">${message}</div>`;
-  
-  // Indicador "pensando"
-  const thinking = document.createElement('div');
-  thinking.innerHTML = '<span style="animation:blink 1s infinite">● ● ●</span>';
-  msgsContainer.appendChild(thinking);
-  
-  setTimeout(() => {
-    thinking.remove();
-    const response = this.getIAResponse(message);
-    msgsContainer.innerHTML += `<div>🤖 ${response}</div>`;
-    this.addXP(5);
-    this.saveData();
-  }, 1000);
-  
-  msgInput.value = '';
-}
-```
+### 6. **Laboratorio de Código (Labs)**
+- **Editor en vivo**: Escribe y ejecuta código HTML/CSS/JS
+- **Vista previa instantánea**: iframe que renderiza el resultado
+- **Auto-guardado**: Guarda el código cada segundo después de escribir
+- **Ejemplos predefinidos** por categorías:
+  - **Básicos**: HTML, CSS, JavaScript, Tailwind
+  - **Frameworks**: React, Vue, Svelte
+  - **Visualización**: Three.js (3D), D3.js (gráficos)
+  - **Juegos**: Juego interactivo con canvas
 
-### 4. **Quizzes Interactivos**
-
-```javascript
-// Datos de quizzes
-quizzes: {
-  html: [
-    { 
-      name: 'HTML Fundamentals', 
-      desc: 'Conceptos básicos', 
-      questions: 15, 
-      xp: 150, 
-      level: 'Principiante' 
-    }
-  ],
-  js: [
-    { 
-      name: 'JavaScript Basics', 
-      desc: 'Fundamentos JS', 
-      questions: 20, 
-      xp: 200, 
-      level: 'Principiante' 
-    }
-  ]
-},
-
-// Iniciar quiz
-startQuiz(quizIndex, lang) {
-  const quiz = this.quizzes[lang][quizIndex];
-  const quizQuestions = [
-    { question: `¿Pregunta sobre ${quiz.name}?`, options: ['A', 'B', 'C', 'D'], correct: 0 }
-  ];
-  
-  let currentQuestion = 0;
-  let score = 0;
-  
-  const modal = document.createElement('div');
-  modal.innerHTML = `
-    <div style="background:var(--panel); padding:2rem">
-      <h2>${quiz.name}</h2>
-      <p>${quizQuestions[currentQuestion].question}</p>
-      ${quizQuestions[currentQuestion].options.map((opt, i) => 
-        `<button onclick="appState.answer(${i})">${opt}</button>`
-      ).join('')}
-    </div>
-  `;
-  document.body.appendChild(modal);
-  
-  this.currentQuiz = { questions: quizQuestions, current: 0, score: 0, quiz, modal };
-},
-
-// Responder pregunta
-answer(selectedIdx) {
-  const q = this.currentQuiz.questions[this.currentQuiz.current];
-  if (selectedIdx === q.correct) {
-    this.currentQuiz.score++;
-    this.notify('✅ Correcto');
-  } else {
-    this.notify('❌ Incorrecto');
-  }
-  
-  this.currentQuiz.current++;
-  
-  if (this.currentQuiz.current < this.currentQuiz.questions.length) {
-    this.renderQuestion();
-  } else {
-    const percent = (this.currentQuiz.score / this.currentQuiz.questions.length) * 100;
-    const earnedXP = Math.floor((percent / 100) * this.currentQuiz.quiz.xp);
-    this.addXP(earnedXP);
-    this.notify(`🎉 Quiz completado! +${earnedXP} XP`);
-    this.currentQuiz.modal.remove();
-  }
-}
-```
-
-### 5. **Laboratorio de Código (Labs)**
-
-```javascript
-// Mostrar Labs
-showLabs() {
-  const labsSection = document.getElementById('labs');
-  labsSection.innerHTML = `
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem">
-      <div class="box">
-        <h3>✏️ EDITOR</h3>
-        <textarea id="code-editor" style="width:100%; height:300px; background:#000; color:#0f0"></textarea>
-        <button onclick="appState.runCode()">▶ EJECUTAR</button>
-      </div>
-      <div class="box">
-        <h3>👁️ VISTA PREVIA</h3>
-        <iframe id="preview-frame" style="width:100%; height:300px; background:white"></iframe>
-      </div>
-    </div>
-    <div>
-      <h3>⚡ EJEMPLOS</h3>
-      <button onclick="appState.loadExample('html')">📄 HTML</button>
-      <button onclick="appState.loadExample('css')">🎨 CSS</button>
-      <button onclick="appState.loadExample('react')">⚛️ React</button>
-    </div>
-  `;
-  
-  // Auto-guardado
-  const editor = document.getElementById('code-editor');
-  editor.addEventListener('input', () => {
-    clearTimeout(this.labSaveTimeout);
-    this.labSaveTimeout = setTimeout(() => this.saveLabCode(), 1000);
-  });
-},
-
-// Ejecutar código
-runCode() {
-  const code = document.getElementById('code-editor').value;
-  const iframe = document.getElementById('preview-frame');
-  const doc = iframe.contentDocument || iframe.contentWindow.document;
-  doc.open();
-  doc.write(code);
-  doc.close();
-  this.notify('✅ Código ejecutado');
-},
-
-// Ejemplos predefinidos
-loadExample(type) {
-  const examples = {
-    html: '<h1 style="color:#00f5ff">Hola NEXUS</h1>',
-    css: '<style>body{background:linear-gradient(45deg,#00f5ff,#bd00ff)}</style><h1>Gradient</h1>',
-    react: `<div id="root"></div>
-<script src="https://unpkg.com/react@18/umd/react.development.js"><\/script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"><\/script>
-<script>ReactDOM.createRoot(document.getElementById('root')).render(React.createElement('h1', null, 'Hola React'));<\/script>`
-  };
-  document.getElementById('code-editor').value = examples[type];
-}
-```
-
-### 6. **Sistema de Gamificación**
-
-```javascript
-// Constantes
-const XP_PER_LEVEL = 500;
-
-// Añadir XP
-addXP(amount) {
-  this.data.xp += amount;
-  const newLevel = Math.floor(this.data.xp / XP_PER_LEVEL) + 1;
-  
-  if (newLevel > this.data.level) {
-    this.notify(`🎉 ¡Subiste al nivel ${newLevel}!`);
-  }
-  
-  this.data.level = newLevel;
-  this.data.lastActivity = Date.now();
-  this.updateStreak();
-  this.syncUI();
-  this.saveData();
-},
-
-// Actualizar racha
-updateStreak() {
-  const now = Date.now();
-  const last = this.data.lastActivity;
-  const day = 24 * 60 * 60 * 1000;
-  
-  if (now - last < day) {
-    this.data.streak++;
-  } else if (now - last > day * 2) {
-    this.data.streak = 1;
-  }
-},
-
-// Sincronizar UI
-syncUI() {
-  document.getElementById('xpBadge').textContent = `⬡ ${this.data.xp} XP`;
-  document.getElementById('level').textContent = this.data.level;
-  document.getElementById('streak').textContent = this.data.streak;
-  
-  // Barra de progreso
-  const xpInLevel = this.data.xp % XP_PER_LEVEL;
-  const percent = (xpInLevel / XP_PER_LEVEL) * 100;
-  document.getElementById('xpProgress').style.width = percent + '%';
-}
-```
-
-### 7. **Persistencia en localStorage**
-
-```javascript
-// Guardar datos
-saveData() {
-  localStorage.setItem('nexus-data', JSON.stringify(this.data));
-  if (this.currentUser) this.saveUserData();
-},
-
-// Guardar usuario específico
-saveUserData() {
-  const user = this.users[this.currentUser.email];
-  if (user) {
-    user.data = JSON.parse(JSON.stringify(this.data));
-    user.settings = JSON.parse(JSON.stringify(this.settings));
-    this.saveUsers();
-  }
-},
-
-// Cargar datos del usuario
-loadUserData() {
-  const user = this.users[this.currentUser.email];
-  if (user) {
-    this.data = JSON.parse(JSON.stringify(user.data));
-    this.settings = JSON.parse(JSON.stringify(user.settings));
-  }
-},
-
-// Estructura completa en localStorage
-/*
-nexus-users: {
-  "usuario@email.com": {
-    username: "usuario",
-    email: "usuario@email.com", 
-    password: "base64(password)",
-    provider: "local",
-    linkedAccounts: [],
-    data: { xp, level, streak, profile: { name, email, bio, avatar } },
-    settings: { notifications, sound, darkMode, language, colors }
-  }
-}
-
-nexus-current-user: {
-  email: "usuario@email.com",
-  username: "usuario"
-}
-*/
-```
+### 7. **Sistema de Logros**
+- **9 logros** basados en:
+  - Acumulación de XP (5 niveles)
+  - Preguntas realizadas
+  - Rachas de actividad
+  - Votos útiles recibidos
+- **Indicadores visuales**: Opacidad y color según completado
+- **Estadísticas en tiempo real**: XP, nivel, racha actualizados
 
 ---
 
-## 🤖 Sistema de IA - Código Completo
+## 🤖 Sistema de IA
+
+### Arquitectura del Motor de IA
 
 ```javascript
-// Motor de IA completo
-const iaSystem = {
+appState.iaKnowledge = {
+  // Detección por temas
+  javascript: { keywords: [...], responses: [...] },
+  react: { keywords: [...], responses: [...] },
+  python: { keywords: [...], responses: [...] },
+  // ... más temas
+  
   // Detección de intenciones
   intentions: {
-    greeting: {
-      keywords: ['hola', 'buenos', 'hey', 'hi', 'saludos'],
-      responses: [
-        "¡Hola! 👋 Soy tu asistente de programación. ¿En qué puedo ayudarte?",
-        "¡Hey! Bienvenido a NEXUS. ¿Tienes alguna duda?",
-        "¡Saludos! Estoy aquí para ayudarte con HTML, CSS, JS, React y más."
-      ]
-    },
-    farewell: {
-      keywords: ['adiós', 'hasta luego', 'chao', 'bye', 'nos vemos'],
-      responses: [
-        "¡Hasta luego! Sigue practicando y acumula XP 🚀",
-        "¡Nos vemos pronto! Recuerda los quizzes para ganar XP 💪",
-        "¡Adiós! Excelente trabajo hoy 👨‍💻"
-      ]
-    },
-    thanks: {
-      keywords: ['gracias', 'thank', 'thanks', 'te lo agradezco'],
-      responses: [
-        "¡De nada! 😊 ¿Necesitas algo más?",
-        "Para eso estoy, ¡cuenta conmigo!",
-        "¡Un placer ayudar! Sigue preguntando"
-      ]
-    }
+    greeting: {...},
+    farewell: {...}
   },
-
-  // Base de conocimiento por tema
-  topics: {
-    javascript: {
-      keywords: ['javascript', 'js', 'var', 'let', 'const', 'function', 'objeto'],
-      responses: [
-        {
-          pattern: /(empezar|comenzar|aprender|principiante)/i,
-          response: "Para empezar con JavaScript:\n\n1️⃣ Variables y tipos de datos\n2️⃣ Estructuras de control (if/else, loops)\n3️⃣ Funciones y scope\n4️⃣ Manipulación del DOM\n\n📚 Recursos: MDN, JavaScript.info, FreeCodeCamp"
-        },
-        {
-          pattern: /(que es|definición|concepto)/i,
-          response: "JavaScript es un lenguaje interpretado que:\n\n✨ Se ejecuta en el navegador\n✨ Crea páginas web interactivas\n✨ Funciona en servidores con Node.js\n✨ Es multiparadigma"
-        },
-        {
-          pattern: /(variable|declarar)/i,
-          response: "En JS declaras variables con:\n\nlet nombre = 'Juan';\nconst PI = 3.1416;\n\n✅ Usa CONST por defecto\n✅ Usa LET si necesitas reasignar\n❌ Evita VAR (obsoleto)"
-        }
-      ],
-      defaultResponse: "JavaScript es muy versátil. ¿Qué tema específico te interesa? (variables, funciones, objetos, async/await, DOM...)"
-    },
-    
-    react: {
-      keywords: ['react', 'reactjs', 'componentes', 'hooks', 'jsx', 'estado'],
-      responses: [
-        {
-          pattern: /(que es|definición)/i,
-          response: "React es una biblioteca de JS para interfaces:\n\n⚛️ Creada por Facebook (2013)\n⚛️ Basada en componentes\n⚛️ Usa Virtual DOM\n⚛️ Ideal para SPAs"
-        },
-        {
-          pattern: /(hooks|usestate|useeffect)/i,
-          response: "Hooks principales:\n\n• useState: maneja estado\n• useEffect: efectos secundarios\n• useContext: evita prop drilling\n• useReducer: estado complejo"
-        }
-      ],
-      defaultResponse: "React es fascinante. ¿Sobre componentes, hooks, estado o ciclo de vida?"
-    },
-
-    python: {
-      keywords: ['python', 'py', 'django', 'flask', 'pandas'],
-      responses: [
-        {
-          pattern: /(empezar|aprender)/i,
-          response: "🐍 Python es ideal para empezar:\n\n1️⃣ Sintaxis limpia\n2️⃣ Tipado dinámico\n3️⃣ Grandes librerías\n\nÁreas: Web (Django), Data Science (Pandas), IA (TensorFlow)"
-        }
-      ],
-      defaultResponse: "Python es muy versátil. ¿Web, data science, automatización o IA?"
-    },
-
-    html: {
-      keywords: ['html', 'etiqueta', 'elemento', 'dom', 'estructura'],
-      responses: [
-        {
-          pattern: /(que es)/i,
-          response: "HTML (HyperText Markup Language) es el lenguaje estándar para crear páginas web:\n\n📄 Define la estructura\n🔗 Usa etiquetas\n🌐 Interpretado por navegadores"
-        }
-      ],
-      defaultResponse: "HTML es la base. ¿Qué etiqueta o concepto te gustaría explorar?"
-    },
-
-    css: {
-      keywords: ['css', 'estilo', 'diseño', 'flexbox', 'grid', 'animación'],
-      responses: [
-        {
-          pattern: /(flexbox|flex)/i,
-          response: "Flexbox layout unidimensional:\n\ndisplay: flex;\njustify-content: center;\nalign-items: center;\ngap: 20px;"
-        },
-        {
-          pattern: /(grid)/i,
-          response: "CSS Grid es bidimensional:\n\ndisplay: grid;\ngrid-template-columns: 1fr 1fr;\ngap: 20px;"
-        }
-      ],
-      defaultResponse: "CSS da estilo. ¿Selectores, flexbox, grid o animaciones?"
-    },
-
-    nodejs: {
-      keywords: ['node', 'nodejs', 'backend', 'servidor', 'npm', 'express'],
-      responses: [
-        {
-          pattern: /(servidor|server)/i,
-          response: "Servidor básico con Node.js:\n\nconst http = require('http');\nconst server = http.createServer((req, res) => {\n  res.end('¡Hola Mundo!');\n});\nserver.listen(3000);"
-        }
-      ],
-      defaultResponse: "Node.js es JS en el backend. ¿Qué quieres saber?"
-    }
-  },
-
-  // Respuestas genéricas
-  defaultResponses: [
-    "¿Podrías darme más contexto? Así puedo ayudarte mejor 🔍",
-    "¡Buena pregunta! ¿Qué has investigado hasta ahora? 📚",
-    "En programación hay varias soluciones. ¿Qué enfoque prefieres? 🎯",
-    "¿Quieres teoría o un ejemplo práctico? 💻",
-    "Puedo ayudarte con HTML, CSS, JS, React, Python, Node.js. ¿Sobre cuál? 🔧",
-    "Ese es un buen punto. ¿Quieres que profundice en algo específico? 🤔"
-  ],
-
-  // Método principal para obtener respuesta
-  getResponse(message) {
-    const msg = message.toLowerCase();
-    
-    // 1. Detectar intenciones
-    for (const [intent, data] of Object.entries(this.intentions)) {
-      if (data.keywords.some(k => msg.includes(k))) {
-        return data.responses[Math.floor(Math.random() * data.responses.length)];
-      }
-    }
-    
-    // 2. Detectar temas
-    for (const [topic, data] of Object.entries(this.topics)) {
-      if (data.keywords.some(k => msg.includes(k))) {
-        for (const response of data.responses) {
-          if (response.pattern.test(msg)) {
-            return response.response;
-          }
-        }
-        return data.defaultResponse;
-      }
-    }
-    
-    // 3. Respuesta genérica
-    return this.defaultResponses[Math.floor(Math.random() * this.defaultResponses.length)];
-  }
-};
-
-// Uso en appState
-getIAResponse(userMessage) {
-  return iaSystem.getResponse(userMessage);
+  
+  // Respuestas genéricas por defecto
+  defaultResponses: [...]
 }
+```
+
+### Componentes del Sistema IA
+
+#### 1. **Detector de Intenciones**
+```javascript
+// Prioridad 1: Detectar saludos y despedidas
+const intentions = {
+  greeting: {
+    keywords: ['hola', 'buenos días', 'hey', 'hi'],
+    responses: ["¡Hola! 👋 ¿En qué puedo ayudarte?"]
+  },
+  farewell: {
+    keywords: ['adiós', 'hasta luego', 'bye'],
+    responses: ["¡Hasta luego! Sigue practicando 🚀"]
+  }
+}
+```
+
+#### 2. **Clasificador de Temas**
+```javascript
+// Prioridad 2: Detectar temas técnicos
+for (const [key, topic] of Object.entries(this.iaKnowledge)) {
+  if (topic.keywords.some(keyword => message.includes(keyword))) {
+    detectedTopic = topic;
+    break;
+  }
+}
+```
+
+#### 3. **Motor de Respuestas Basado en Patrones**
+```javascript
+// Cada tema tiene respuestas específicas con patrones regex
+responses: [
+  {
+    pattern: /(empezar|comenzar|aprender)/i,
+    response: "Para empezar con JavaScript..."
+  },
+  {
+    pattern: /(que es|definición)/i,
+    response: "JavaScript es un lenguaje..."
+  }
+]
+```
+
+#### 4. **Sistema de Feedback**
+- Botones "Útil/No útil" en cada respuesta
+- Contador de respuestas útiles (`usefulCount`)
+- Los datos de feedback se guardan para futuras mejoras
+
+### Flujo de Procesamiento de Mensajes
+
+```
+1. Usuario escribe mensaje
+2. appState.sendMessage() valida input
+3. Se renderiza mensaje del usuario
+4. Se muestra indicador "pensando..."
+5. appState.getIAResponse() procesa:
+   a. ¿Coincide con intención? (saludo/despedida) → respuesta inmediata
+   b. ¿Coincide con tema? (JavaScript/React/etc.) → busca patrón
+   c. ¿Coincide con patrón específico? → respuesta personalizada
+   d. Por defecto → respuesta genérica aleatoria
+6. Se renderiza respuesta con botones de feedback
+7. Se guarda en historial (this.data.messages)
+8. Se actualiza XP (+5 por mensaje)
 ```
 
 ---
 
-## 🎮 Sistema de Gamificación - Código Completo
+## 🎮 Sistema de Gamificación
 
+### Cálculo de XP y Niveles
 ```javascript
-// Constantes del sistema
-const GAME_CONSTANTS = {
-  XP_PER_LEVEL: 500,
-  XP_PER_MESSAGE: 5,
-  STREAK_BONUS: 10,
-  DAY_IN_MS: 24 * 60 * 60 * 1000
-};
+const XP_PER_LEVEL = 500;
+this.data.level = Math.floor(this.data.xp / XP_PER_LEVEL) + 1;
+```
 
-// Sistema de logros
-const achievements = [
-  { 
-    id: 'beginner', 
-    name: 'Principiante', 
-    desc: 'Alcanza 100 XP', 
-    icon: '🌱', 
-    check: (data) => data.xp >= 100 
-  },
-  { 
-    id: 'apprentice', 
-    name: 'Aprendiz', 
-    desc: 'Alcanza 500 XP', 
-    icon: '📚', 
-    check: (data) => data.xp >= 500 
-  },
-  { 
-    id: 'programmer', 
-    name: 'Programador', 
-    desc: 'Alcanza 1000 XP', 
-    icon: '💻', 
-    check: (data) => data.xp >= 1000 
-  },
-  { 
-    id: 'expert', 
-    name: 'Experto', 
-    desc: 'Alcanza 2500 XP', 
-    icon: '⚡', 
-    check: (data) => data.xp >= 2500 
-  },
-  { 
-    id: 'master', 
-    name: 'Master', 
-    desc: 'Alcanza 5000 XP', 
-    icon: '👑', 
-    check: (data) => data.xp >= 5000 
-  },
-  { 
-    id: 'chat_active', 
-    name: 'Chat Activo', 
-    desc: 'Haz 50 preguntas', 
-    icon: '💬', 
-    check: (data) => (data.questionsCount || 0) >= 50 
-  },
-  { 
-    id: 'streak_7', 
-    name: 'Racha Inicial', 
-    desc: 'Mantén 7 días de racha', 
-    icon: '🔥', 
-    check: (data) => data.streak >= 7 
-  },
-  { 
-    id: 'streak_30', 
-    name: 'Dedicación', 
-    desc: 'Mantén 30 días de racha', 
-    icon: '⭐', 
-    check: (data) => data.streak >= 30 
-  },
-  { 
-    id: 'helpful', 
-    name: 'Útil', 
-    desc: 'Recibe 10 votos útiles', 
-    icon: '👍', 
-    check: (data) => (data.usefulCount || 0) >= 10 
-  }
-];
+### Fuentes de XP
+| Acción | XP | Límite |
+|--------|----|--------|
+| Mensaje en chat | +5 | Ilimitado |
+| Quiz (según rendimiento) | Variable (0-100% del quiz.xp) | Por quiz |
+| Logros | No otorgan XP directo | - |
 
-// Función para verificar logros
-checkAchievements() {
-  const unlocked = [];
-  achievements.forEach(achievement => {
-    if (achievement.check(this.data) && !this.data.achievements?.includes(achievement.id)) {
-      unlocked.push(achievement);
-      if (!this.data.achievements) this.data.achievements = [];
-      this.data.achievements.push(achievement.id);
-      this.notify(`🏆 ¡Logro desbloqueado: ${achievement.name}!`);
-    }
-  });
-  return unlocked;
-}
-
-// Mostrar logros en UI
-showAchievements() {
-  const container = document.getElementById('logros');
-  const achievementsHTML = achievements.map(ach => {
-    const unlocked = this.data.achievements?.includes(ach.id);
-    return `
-      <div style="border:2px solid ${unlocked ? 'var(--green)' : 'var(--text-dim)'}; opacity:${unlocked ? 1 : 0.5}; padding:1rem">
-        <span style="font-size:2rem">${ach.icon}</span>
-        <h3 style="color:${unlocked ? 'var(--green)' : 'var(--text-dim)'}">${ach.name}</h3>
-        <p>${ach.desc}</p>
-        ${unlocked ? '✓' : ''}
-      </div>
-    `;
-  }).join('');
-  
-  container.innerHTML = achievementsHTML;
+### Sistema de Rachas
+```javascript
+const dayInMs = 24 * 60 * 60 * 1000;
+if (now - lastActivity < dayInMs) {
+  // Actividad diaria → incrementa racha
+  streak++;
+} else if (now - lastActivity > dayInMs * 2) {
+  // Más de 2 días sin actividad → reinicia racha
+  streak = 1;
 }
 ```
 
@@ -769,447 +241,331 @@ showAchievements() {
 
 ## 💻 Tecnologías y Dependencias
 
-### Código de las dependencias externas
+### Tecnologías Core
+| Tecnología | Uso | Versión |
+|------------|-----|---------|
+| HTML5 | Estructura semántica | Estándar |
+| CSS3 | Estilos, animaciones, responsive | Estándar |
+| JavaScript (ES6+) | Lógica de negocio, interactividad | Estándar |
 
+### APIs del Navegador
+- **localStorage**: Persistencia de datos
+- **IntersectionObserver**: No utilizado (scroll nativo)
+- **requestAnimationFrame**: Animaciones (Three.js, juego)
+- **Canvas API**: Renderizado de juegos y gráficos
+
+### Dependencias Externas (CDN)
 ```html
-<!-- Fuentes de Google -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<!-- Fuentes -->
+<link href="https://fonts.googleapis.com/css2?family=Orbitron...">
 
 <!-- Librerías para ejemplos en Labs -->
-<!-- React -->
-<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
-<!-- Vue -->
-<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-
-<!-- Tailwind CSS -->
-<script src="https://cdn.tailwindcss.com"></script>
-
-<!-- Three.js (3D) -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
-<!-- D3.js (gráficos) -->
-<script src="https://d3js.org/d3.v7.min.js"></script>
+<script src="https://unpkg.com/react@18/umd/react.development.js">
+<script src="https://unpkg.com/vue@3/dist/vue.global.js">
+<script src="https://cdn.tailwindcss.com">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js">
+<script src="https://d3js.org/d3.v7.min.js">
 ```
 
-### Código de animaciones clave
-
-```css
-/* Animación de glitch para el título */
-@keyframes glitch {
-  0%, 100% { text-shadow: 0 0 10px var(--cyan); }
-  50% { text-shadow: 0 0 20px var(--magenta); }
+### Estructura de Datos en localStorage
+```javascript
+// nexus-users: Todos los usuarios registrados
+{
+  "usuario@email.com": {
+    username: "usuario",
+    email: "usuario@email.com",
+    password: "base64(password)",
+    provider: "local",
+    linkedAccounts: [],
+    data: { xp, level, streak, profile },
+    settings: { notifications, sound, darkMode, language, colors }
+  }
 }
 
-/* Animación de flotación */
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-
-/* Animación del loader */
-@keyframes pushInOut1724 {
-  from { background-color: var(--bg); transform: translate(0, 0); }
-  25% { background-color: var(--cyan); transform: translate(-71%, -71%); }
-  50%, to { background-color: var(--bg); transform: translate(0, 0); }
-}
-
-/* Barra de progreso XP */
-@keyframes pulse-progress {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.8; box-shadow: 0 0 15px rgba(0, 245, 255, 0.7); }
+// nexus-current-user: Usuario activo
+{
+  email: "usuario@email.com",
+  username: "usuario"
 }
 ```
+---
+
+## 📦 Instalación y Uso
+
+### Requisitos Mínimos
+- Navegador web moderno (Chrome 90+, Firefox 88+, Edge 90+, Safari 14+)
+- JavaScript habilitado
+- Conexión a internet (para cargar fuentes y librerías CDN)
+
+### Instalación
+```bash
+# 1. Clona el repositorio
+git clone https://github.com/tuusuario/nexus-platform.git
+
+# 2. Navega al directorio
+cd nexus-platform
+
+# 3. ¡No necesita instalación! Solo abre el archivo
+# Abre nexus-ultimate.html en tu navegador
+```
+
+### Configuración Inicial
+1. **Abre el archivo** `nexus-ultimate.html`
+2. **Regístrate** con email y contraseña (o login social simulado)
+3. **Personaliza tu perfil** (opcional, pero recomendado)
+4. **Explora las secciones** desde el menú principal
+
+### Guía de Uso Rápida
+
+#### Para Aprender:
+1. Ve a **IA Asistente** y pregunta conceptos que no entiendas
+2. Practica con **Quizzes** para consolidar conocimientos
+3. Consulta **Recursos** para documentación oficial
+
+#### Para Experimentar:
+1. Ve a **Labs**
+2. Elige una categoría de ejemplo
+3. Modifica el código y haz clic en "EJECUTAR"
+4. ¡Prueba el juego interactivo!
+
+#### Para Seguir tu Progreso:
+1. Haz clic en el avatar flotante (esquina inferior derecha)
+2. Revisa tus estadísticas en la pestaña "ESTADÍSTICAS"
+3. Ve a **Logros** para ver qué has desbloqueado
 
 ---
 
-## 📦 Instalación y Uso - Código
+## 📁 Estructura del Código
 
-### Clonar el repositorio
-
-```bash
-# HTTPS
-git clone https://github.com/visintinitech/NEXUS.git
-
-# SSH
-git clone git@github.com:visintinitech/NEXUS.git
-
-# GitHub CLI
-gh repo clone visintinitech/NEXUS
-```
-
-### Estructura final de archivos
-
-```bash
-# Después de clonar, tu estructura debe ser:
-NEXUS/
-├── index.html          # Plataforma completa (TODO EL CÓDIGO)
-├── README.md           # Este documento
-├── LICENSE             # Licencia MIT
-└── .gitignore          # Archivos ignorados
-```
-
-### Contenido del .gitignore
-
-```gitignore
-# Archivos del sistema
-.DS_Store
-Thumbs.db
-desktop.ini
-
-# Archivos de editor
-.vscode/
-.idea/
-*.swo
-*.swp
-
-# Archivos temporales
-*.log
-*.tmp
-*.temp
-*.bak
-
-# Archivos de entorno
-.env
-.env.local
-```
-
-### Contenido de LICENSE (MIT)
-
-```markdown
-MIT License
-
-Copyright (c) 2026 visintinitech
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
-
----
-
-## 📁 Estructura del Código - Detalle
-
-### Organización del archivo index.html
-
+### Organización del Archivo Único
 ```html
-<!DOCTYPE html>
-<html>
-<head>
-  <!-- METADATOS -->
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NEXUS // Plataforma de Programación</title>
+nexus-ultimate.html
+├── <head>
+│   ├── Metadatos y viewport
+│   ├── Fuentes de Google
+│   └── Estilos CSS (3000+ líneas)
+│       ├── Variables CSS
+│       ├── Componentes (loader, navbar, cards)
+│       ├── Animaciones keyframes
+│       └── Media queries responsive
+│
+├── <body>
+│   ├── Pantalla de login
+│   ├── Loader animado
+│   ├── Navegación flotante
+│   ├── Perfil flotante
+│   ├── Modal de perfil
+│   └── MAIN con 6 secciones:
+│       ├── Hero (inicio)
+│       ├── Tecnologías
+│       ├── IA
+│       ├── Recursos
+│       ├── Quizzes
+│       ├── Labs
+│       └── Logros
+│
+└── <script>
+    ├── Constantes globales
+    ├── Objeto appState (2500+ líneas)
+    │   ├── Datos de usuario
+    │   ├── Sistema de autenticación
+    │   ├── Motor de IA
+    │   ├── Lógica de quizzes
+    │   ├── Funciones de Labs
+    │   └── Utilidades (notificaciones, sincronización)
+    └── Inicialización y event listeners
+```
+
+### Patrones de Diseño Implementados
+
+#### 1. **Módulo Revelador (Revealing Module Pattern)**
+```javascript
+const appState = {
+  // Datos públicos
+  users: {},
+  currentUser: null,
   
-  <!-- FUENTES -->
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron..." rel="stylesheet">
+  // Métodos públicos
+  loginUser() { ... },
+  sendMessage() { ... },
   
-  <!-- ESTILOS (3000+ líneas) -->
-  <style>
-    /* Variables CSS */
-    :root { --cyan: #00f5ff; --magenta: #ff006e; /* ... */ }
-    
-    /* Reset y base */
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    
-    /* Componentes */
-    .loader-container { /* ... */ }
-    .nav-card { /* ... */ }
-    .modal { /* ... */ }
-    
-    /* Animaciones */
-    @keyframes glitch { /* ... */ }
-    @keyframes float { /* ... */ }
-    
-    /* Media queries responsive */
-    @media (max-width: 768px) { /* ... */ }
-  </style>
-</head>
-<body>
-  <!-- LOGIN SCREEN -->
-  <div id="loginScreen">...</div>
-  
-  <!-- BACKGROUND ANIMADO -->
-  <div class="matrix-container">...</div>
-  
-  <!-- LOADER -->
-  <div class="loader-container">...</div>
-  
-  <!-- NAVEGACIÓN FLOTANTE -->
-  <div class="nav-menu-fixed">...</div>
-  
-  <!-- PERFIL FLOTANTE -->
-  <div class="floating-profile">...</div>
-  
-  <!-- MODAL DE PERFIL -->
-  <div class="modal" id="modal">...</div>
-  
-  <!-- NOTIFICACIONES -->
-  <div class="notification" id="notif"></div>
-  
-  <!-- MAIN - 6 SECCIONES -->
-  <main>
-    <section id="hero">...</section>
-    <section id="tecnologias" class="hidden">...</section>
-    <section id="ia" class="hidden">...</section>
-    <section id="recursos" class="hidden">...</section>
-    <section id="quizzes" class="hidden">...</section>
-    <section id="labs" class="hidden">...</section>
-    <section id="logros" class="hidden">...</section>
-  </main>
-  
-  <!-- SCRIPT (2500+ líneas) -->
-  <script>
-    // CONSTANTES GLOBALES
-    const STORAGE_KEY = 'nexus-data';
-    const XP_PER_LEVEL = 500;
-    
-    // OBJETO PRINCIPAL appState
-    const appState = {
-      users: {},
-      currentUser: null,
-      data: { xp: 0, level: 1, streak: 0 },
-      settings: { notifications: true, sound: true, darkMode: true },
-      
-      // MÉTODOS DE AUTENTICACIÓN
-      loadUsers() { /* ... */ },
-      registerUser() { /* ... */ },
-      loginUser() { /* ... */ },
-      
-      // SISTEMA IA
-      iaKnowledge: { /* ... */ },
-      getIAResponse() { /* ... */ },
-      sendMessage() { /* ... */ },
-      
-      // QUIZZES
-      quizzes: { /* ... */ },
-      startQuiz() { /* ... */ },
-      answerQuestion() { /* ... */ },
-      
-      // LABS
-      showLabs() { /* ... */ },
-      runCode() { /* ... */ },
-      loadExample() { /* ... */ },
-      
-      // GAMIFICACIÓN
-      addXP() { /* ... */ },
-      updateStreak() { /* ... */ },
-      showLogros() { /* ... */ },
-      
-      // UTILIDADES
-      syncUI() { /* ... */ },
-      notify() { /* ... */ },
-      saveData() { /* ... */ }
-    };
-    
-    // INICIALIZACIÓN
-    document.addEventListener('DOMContentLoaded', () => {
-      appState.init();
-    });
-    
-    // FUNCIONES GLOBALES
-    function show(id) { appState.show(id); }
-    function send() { appState.sendMessage(); }
-  </script>
-</body>
-</html>
+  // Métodos privados (por convención _)
+  _validateInput() { ... }
+}
+```
+
+#### 2. **Inmutabilidad Controlada**
+```javascript
+// Copias profundas para evitar mutaciones accidentales
+this.data = JSON.parse(JSON.stringify(user.data));
+```
+
+#### 3. **Observador (Observer Pattern)**
+```javascript
+// syncUI() actúa como método de actualización
+// Notifica a todos los componentes visuales
+syncUI() {
+  this.updateXPBadge();
+  this.updateLevel();
+  this.updateProgressBar();
+  // ...
+}
 ```
 
 ---
 
-## 🎨 Decisiones de Diseño - Código
+## 🎨 Decisiones de Diseño
 
-### 1. SPA sin frameworks - Implementación
+### 1. **Aplicación de Página Única (SPA) sin Frameworks**
+**Razón**: 
+- Simplicidad para un proyecto inicial
+- Control total sobre el código
+- Sin dependencias pesadas
+- Ideal para demostrar habilidades vanilla JS
 
-```javascript
-// Sistema de navegación entre secciones
-show(sectionId) {
-  // Ocultar todas las secciones
-  document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
-  
-  // Mostrar la sección seleccionada
-  const section = document.getElementById(sectionId);
-  if (section) section.classList.remove('hidden');
-  
-  // Inicializar contenido dinámico según la sección
-  if (sectionId === 'ia') this.loadMessages();
-  else if (sectionId === 'labs') this.showLabs();
-  else if (sectionId === 'logros') this.showLogros();
-  
-  window.scrollTo(0, 0);
-}
-```
+**Implementación**:
+- Secciones ocultas con clase `.hidden`
+- Función `show(sectionId)` que maneja la navegación
 
-### 2. localStorage como persistencia
+### 2. **localStorage como Backend**
+**Razón**:
+- No requiere servidor
+- Persistencia entre sesiones
+- Fácil implementación para prototipo
+- Suficiente para demostración educativa
 
-```javascript
-// Guardar usuarios
-saveUsers() {
-  localStorage.setItem('nexus-users', JSON.stringify(this.users));
-}
+**Trade-offs**:
+- Límite de 5-10MB
+- No sincronización entre dispositivos
+- Datos accesibles en cliente
 
-// Cargar usuarios
-loadUsers() {
-  const saved = localStorage.getItem('nexus-users');
-  if (saved) this.users = JSON.parse(saved);
-}
+### 3. **IA Basada en Reglas vs. APIs Externas**
+**Razón**:
+- Funciona sin conexión a internet (excepto ejemplos)
+- Control total sobre respuestas
+- Sin costos de API
+- Enfocado en demostrar lógica de procesamiento
 
-// Guardar datos del usuario actual
-saveData() {
-  localStorage.setItem('nexus-data', JSON.stringify(this.data));
-  localStorage.setItem('nexus-settings', JSON.stringify(this.settings));
-  if (this.currentUser) this.saveUserData();
-}
-```
+**Limitación**: No aprende ni mejora con el tiempo
 
-### 3. IA basada en reglas
+### 4. **Diseño Cyberpunk**
+**Razón**:
+- Identidad visual fuerte y memorable
+- Facilita separación de componentes
+- Temática "futurista" adecuada para tecnología
+- Colores neón contrastan bien con fondo oscuro
 
-```javascript
-// Ver detalle en sección [🤖 Sistema de IA - Código Completo]
-```
+**Implementación**:
+- Variables CSS para cambio de tema
+- Sombras y brillos para efecto "glow"
+- Animaciones sutiles para feedback
 
-### 4. Diseño cyberpunk con variables CSS
+### 5. **Gamificación como Motivador**
+**Razón**:
+- Aumenta engagement del usuario
+- Proporciona objetivos claros
+- Feedback de progreso constante
+- Sentido de logro y recompensa
 
-```css
-:root {
-  --cyan: #00f5ff;
-  --magenta: #ff006e;
-  --green: #00ff41;
-  --violet: #bd00ff;
-  --amber: #ffaa00;
-  --bg: #04040e;
-  --panel: #080818;
-  --text: #c8d0ff;
-  --text-dim: #6070aa;
-  --border: rgba(0, 245, 255, 0.2);
-}
+---
 
-/* Efecto de brillo en cards */
-.nav-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(0, 245, 255, 0.1), transparent);
-  transition: left 0.5s ease;
-}
+## ⚠️ Limitaciones Conocidas
 
-.nav-card:hover::before {
-  left: 100%;
-}
-```
+### Técnicas
+1. **No hay backend real**: Los datos solo persisten en localStorage
+2. **IA no es inteligente**: Es un sistema de reglas, no ML real
+3. **Login social es simulado**: No hay OAuth real implementado
+4. **Sin base de datos**: No escalable a múltiples usuarios simultáneos
+5. **Sin autenticación segura**: Contraseñas codificadas en base64 (no encriptadas)
 
-### 5. Gamificación
+### Funcionales
+1. **Quizzes con preguntas fijas**: No se pueden añadir nuevas sin editar código
+2. **Recursos limitados**: Solo 3 por lenguaje
+3. **Sin editor colaborativo**: Labs es individual
+4. **Sin modo multijugador**: No hay competencia en tiempo real
 
-```javascript
-// Ver detalle en sección [🎮 Sistema de Gamificación - Código Completo]
-```
+### De Experiencia de Usuario
+1. **Menú flotante puede superponerse** en resoluciones muy pequeñas
+2. **Sin atajos de teclado** para navegación avanzada
+3. **Sin soporte PWA** (no se puede instalar como app)
+4. **Sin modo offline completo**: Algunos ejemplos requieren CDN
+
+---
+
+## 🔮 Próximas Mejoras (Ideas)
+
+Si se continuara el desarrollo:
+
+1. **Backend real** con Node.js/Express y MongoDB
+2. **Autenticación OAuth** real con Passport.js
+3. **IA con API de OpenAI** (GPT) para respuestas reales
+4. **Editor colaborativo** con WebSockets
+5. **Desafíos semanales** con recompensas especiales
+6. **Perfiles públicos** para compartir logros
+7. **Modo oscuro/claro** mejorado (ya implementado)
+8. **Exportar/importar** datos en JSON
+9. **Sonidos** para feedback de acciones
+10. **Soporte PWA** para instalación en dispositivos
 
 ---
 
 ## 👨‍💻 Autor
 
-```javascript
-const autor = {
-  nombre: "Sofia Amalia Visintini",
-  rol: "Desarrolladora Web Principiante",
-  primerProyecto: {
-    nombre: "NEXUS v7.0",
-    fecha: "Febrero 2026",
-    descripcion: "Plataforma educativa completa con IA simulada"
-  },
-  habilidades: [
-    "Diseño responsive y mobile-first",
-    "Animaciones CSS avanzadas",
-    "Manipulación del DOM",
-    "Persistencia con localStorage",
-    "Patrones de diseño en JavaScript",
-    "Sistema de rutas SPA",
-    "Gamificación y UX"
-  ],
-  contacto: {
-    github: "https://github.com/visintinitech",
-    linkedin: "https://linkedin.com/in/sofia-amalia-visintini-34383a3ab",
-    email: "visintini.sofia@gmail.com" // Reemplaza con tu email
-  },
-  estadisticas: {
-    lineasCSS: "3000+",
-    lineasJS: "2500+",
-    lineasHTML: "1000+",
-    funcionalidades: "90+",
-    tiempoDesarrollo: "3 meses"
-  }
-};
-```
+**Tu Nombre**
+- 🎓 **Desarrollador Web Principiante**
+- 📅 **Primer Proyecto Completo:** Febrero 2026
+- 🎯 **Objetivo:** Demostrar dominio de HTML, CSS y JavaScript vanilla
+- 💡 **Habilidades demostradas:**
+  - Diseño responsive y mobile-first
+  - Animaciones CSS avanzadas
+  - Manipulación del DOM
+  - Persistencia con localStorage
+  - Patrones de diseño en JavaScript
+  - Sistema de rutas SPA
+  - Gamificación y experiencia de usuario
+
+### 📞 Contacto
+- **GitHub:** [@visintinitech](https://github.com/visintinitech
+- **Email:** tu@email.com
+- **LinkedIn:** [Tu Perfil](https://linkedin.com/in/sofia-amalia-visintini-34383a3ab)
 
 ---
 
 ## 📄 Licencia
 
-```markdown
-MIT License
+Este proyecto es de **código abierto** bajo la licencia MIT. Puedes:
+- ✅ Usarlo con fines educativos
+- ✅ Modificarlo y adaptarlo
+- ✅ Compartirlo con otros
+- ✅ Incluirlo en tu portafolio
 
-Copyright (c) 2026 Sofia Amalia Visintini
+**Condición**: Por favor, da crédito al autor original si utilizas partes significativas del código.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+---
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+## 🙏 Agradecimientos
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
+- A la comunidad de **MDN Web Docs** por la documentación invaluable
+- A **Google Fonts** por las tipografías espectaculares
+- A los creadores de **Tailwind**, **Three.js**, **D3.js**, **React**, **Vue** y **Svelte** por inspirar los ejemplos
+- A **VS Code** por ser el editor donde nació este proyecto
+- A ti, **lector**, por tomarte el tiempo de explorar mi trabajo
 
 ---
 
 ## 🏁 Palabras Finales
 
-```javascript
-console.log(`
-  ╔════════════════════════════════════════════════════════╗
-  ║  🚀 NEXUS v7.0 - Primer Proyecto Completo              ║
-  ║  📊 3000+ CSS • 2500+ JS • 1000+ HTML • 90+ funciones ║
-  ║  👩‍💻 Desarrollado con 💙, café ☕ y pasión por aprender ║
-  ║  🌟 "El mejor momento para aprender fue ayer.          ║
-  ║     El segundo mejor momento es ahora"                 ║
-  ╚════════════════════════════════════════════════════════╝
-`);
+Este README documenta **más de 90 funcionalidades implementadas** en NEXUS v7.0. Como primer proyecto completo, representa:
 
-// ¡Gracias por visitar NEXUS!
-```
+- 3000+ líneas de CSS
+- 2500+ líneas de JavaScript
+- 1000+ líneas de HTML
+- 3 meses de desarrollo y aprendizaje
+
+**¿El resultado?** Una plataforma educativa funcional, atractiva y completamente interactiva, construida desde cero con tecnologías web estándar.
 
 ---
 
-*¡Gracias por explorar mi primer proyecto completo!* 🚀
-```
+*"El mejor momento para aprender a programar fue ayer. El segundo mejor momento es ahora."*
 
-Este README ahora incluye **código real** en cada sección, mostrando exactamente cómo está implementada cada funcionalidad. ¿Qué te parece?
+**¡Gracias por visitar NEXUS!** 🚀
