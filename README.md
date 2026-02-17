@@ -526,8 +526,8 @@ Si se continuara el desarrollo:
 
 ### 📞 Contacto
 - **GitHub:** [@visintinitech](https://github.com/visintinitech
-- **Email:** tu@email.com
-- **LinkedIn:** [Tu Perfil](https://linkedin.com/in/sofia-amalia-visintini-34383a3ab)
+- **Email:** visintinitech@email.com
+- **LinkedIn:** [Sofia Amalia Visintini](https://linkedin.com/in/sofia-amalia-visintini-34383a3ab)
 
 ---
 
